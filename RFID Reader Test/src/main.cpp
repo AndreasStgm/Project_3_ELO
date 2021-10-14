@@ -7,12 +7,14 @@
 
 MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
 
-MFRC522::MIFARE_Key key;
-
 byte Steven[4] = {167, 154, 66, 51};
+byte Andreas[4] = {163, 245, 191, 50};
 
 //-----Function Declaration-----
-byte printDec(byte *buffer, byte bufferSize);
+
+void printDec(byte *buffer, byte bufferSize);
+void UserCorrect(String user);
+void UserIncorrect();
 
 //----------
 void setup()
@@ -32,23 +34,29 @@ void loop()
     {
         return;
     }
-    //mfrc522.PICC_DumpDetailsToSerial(&(mfrc522.uid)); //dump some details about the card
 
-    // printHex(mfrc522.uid.uidByte, mfrc522.uid.size);
-    // Serial.print("\n");
-    // printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
-    // Serial.print("\n");
-
-    if (printDec(mfrc522.uid.uidByte, mfrc522.uid.size) == *Steven)
+    if (*mfrc522.uid.uidByte == *Steven)
     {
-        Serial.print("Tis ferm goed steven!\n");
+        printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
+        UserCorrect("Steven");
+    }
+    else if (*mfrc522.uid.uidByte == *Andreas)
+    {
+        printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
+        UserCorrect("Andreas");
+    }
+    else
+    {
+        printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
+        UserIncorrect();
     }
 
     delay(1000); //change value if you want to read cards faster
 }
 
 //-----Functions-----
-byte printDec(byte *buffer, byte bufferSize)
+
+void printDec(byte *buffer, byte bufferSize)
 {
     for (byte i = 0; i < bufferSize; i++)
     {
@@ -56,5 +64,14 @@ byte printDec(byte *buffer, byte bufferSize)
         Serial.print(buffer[i], DEC);
     }
     Serial.println();
-    return *buffer;
+    //return *buffer;
+}
+void UserCorrect(String user)
+{
+    Serial.print(user);
+    Serial.println(" identified. Opening...");
+}
+void UserIncorrect()
+{
+    Serial.println("Unknown UID");
 }
