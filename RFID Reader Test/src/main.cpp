@@ -10,7 +10,6 @@ struct RFIDPayload
 {
     byte uid[10];
     byte uidSize;
-    //String name;
     char name[20];
     bool userIdentified;
 } userPayload;
@@ -104,7 +103,6 @@ void UserCorrect(byte *userUid, byte userUidSize, String userName)
         userPayload.uid[i] = userUid[i];
     }
     userPayload.uidSize = userUidSize;
-    //userPayload.name = userName;
     strncpy(userPayload.name, userName.c_str(), 20);
     userPayload.userIdentified = true;
 
@@ -118,7 +116,6 @@ void UserIncorrect(byte *userUid, byte userUidSize)
         userPayload.uid[i] = userUid[i];
     }
     userPayload.uidSize = userUidSize;
-    //userPayload.name = "Unidentified";
     strncpy(userPayload.name, "Unidentified", 20);
     userPayload.userIdentified = false;
 
