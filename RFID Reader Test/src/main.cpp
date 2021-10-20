@@ -1,54 +1,86 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include <MFRC522.h>
+#include <RF24.h>
 
 #define RST_PIN 9
 #define SS_PIN 10
 
-MFRC522 mfrc522(SS_PIN, RST_PIN); // Instance of the class
+struct RFIDPayload
+{
+    byte uid[10];
+    byte uidSize;
+    //String name;
+    char name[20];
+    bool userIdentified;
+} userPayload;
 
+MFRC522 RfidReader(SS_PIN, RST_PIN); // Instance of the class
+RF24 Transceiver(7, 8);              // using pin 7 for the CE pin, and pin 8 for the CSN pin
+
+//-----RFID Users-----
 byte Steven[4] = {167, 154, 66, 51};
 byte Andreas[4] = {163, 245, 191, 50};
+
+//-----nRF24 variables-----
+uint64_t address = 0x696969696969;
+
+float testPayload = 0.0; //test payload
 
 //-----Function Declaration-----
 
 void printDec(byte *buffer, byte bufferSize);
-void UserCorrect(String user);
-void UserIncorrect();
+void UserCorrect(byte *userUid, byte userUidSize, String userName);
+void UserIncorrect(byte *userUid, byte userUidSize);
+void SendRF(RFIDPayload message);
 
 //----------
 void setup()
 {
-    Serial.begin(9600); // Initialize serial communications with the PC
-    SPI.begin();        // Init SPI bus
-    mfrc522.PCD_Init(); // Init MFRC522 card
+    Serial.begin(9600);    // Initialize serial communications with the PC
+    SPI.begin();           // Init SPI bus
+    RfidReader.PCD_Init(); // Init MFRC522 card
+
+    if (!Transceiver.begin()) //Init transceiver on the SPI bus
+    {
+        Serial.println("Radio hardware not responding.");
+        while (1) //When the radio is not responding, hold in an infinite loop
+        {
+        }
+    }
+    // Set the PA Level low to try preventing power supply related problems
+    // because these examples are likely run with nodes in close proximity to
+    // each other.
+    Transceiver.setPALevel(RF24_PA_LOW);             //RF24_PA_MAX is default.
+    Transceiver.setPayloadSize(sizeof(userPayload)); //cutting down on transmission time by only sending needed data
+    Transceiver.openWritingPipe(address);
+    Transceiver.stopListening(); //makes it so that this transceiver is configured as transmitter
 }
 
 void loop()
 {
-    if (!mfrc522.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-    {
+    if (!RfidReader.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
         return;
-    }
-    if (!mfrc522.PICC_ReadCardSerial()) // Select one of the cards
-    {
+    if (!RfidReader.PICC_ReadCardSerial()) // Select one of the cards
         return;
-    }
 
-    if (*mfrc522.uid.uidByte == *Steven)
+    if (*RfidReader.uid.uidByte == *Steven)
     {
-        printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
-        UserCorrect("Steven");
+        printDec(RfidReader.uid.uidByte, RfidReader.uid.size);
+        UserCorrect(RfidReader.uid.uidByte, RfidReader.uid.size, "Steven");
+        SendRF(userPayload);
     }
-    else if (*mfrc522.uid.uidByte == *Andreas)
+    else if (*RfidReader.uid.uidByte == *Andreas)
     {
-        printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
-        UserCorrect("Andreas");
+        printDec(RfidReader.uid.uidByte, RfidReader.uid.size);
+        UserCorrect(RfidReader.uid.uidByte, RfidReader.uid.size, "Andreas");
+        SendRF(userPayload);
     }
     else
     {
-        printDec(mfrc522.uid.uidByte, mfrc522.uid.size);
-        UserIncorrect();
+        printDec(RfidReader.uid.uidByte, RfidReader.uid.size);
+        UserIncorrect(RfidReader.uid.uidByte, RfidReader.uid.size);
+        SendRF(userPayload);
     }
 
     delay(1000); //change value if you want to read cards faster
@@ -64,14 +96,47 @@ void printDec(byte *buffer, byte bufferSize)
         Serial.print(buffer[i], DEC);
     }
     Serial.println();
-    //return *buffer;
 }
-void UserCorrect(String user)
+void UserCorrect(byte *userUid, byte userUidSize, String userName)
 {
-    Serial.print(user);
-    Serial.println(" identified. Opening...");
+    for (byte i = 0; i < userUidSize; i++)
+    {
+        userPayload.uid[i] = userUid[i];
+    }
+    userPayload.uidSize = userUidSize;
+    //userPayload.name = userName;
+    strncpy(userPayload.name, userName.c_str(), 20);
+    userPayload.userIdentified = true;
+
+    Serial.print(userName);
+    Serial.println(" identified.");
 }
-void UserIncorrect()
+void UserIncorrect(byte *userUid, byte userUidSize)
 {
+    for (byte i = 0; i < userUidSize; i++)
+    {
+        userPayload.uid[i] = userUid[i];
+    }
+    userPayload.uidSize = userUidSize;
+    //userPayload.name = "Unidentified";
+    strncpy(userPayload.name, "Unidentified", 20);
+    userPayload.userIdentified = false;
+
     Serial.println("Unknown UID");
+}
+void SendRF(RFIDPayload message)
+{
+    unsigned long start_timer = micros(); //starting the timer
+
+    bool report = Transceiver.write(&message, sizeof(struct RFIDPayload)); //transmit & save the report
+    unsigned long end_timer = micros();                                    //ending the timer
+    if (report)                                                            //if the report == true => delivery was successful
+    {
+        Serial.println("Transmission successful");
+        Serial.print("Time to transmit: ");
+        Serial.print(end_timer - start_timer); //result of the timer
+        Serial.println("us");
+    }
+    else
+        Serial.println("Transmission failed or timed out");
 }
