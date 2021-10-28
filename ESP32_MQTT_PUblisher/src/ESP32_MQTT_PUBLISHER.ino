@@ -1,3 +1,4 @@
+#include <Wire.h>
 #include "PubSubClient.h"                                       // connecteer en publish naar MQTT BROKER
 #include "WiFi.h"                                               // Wifi enabler voor ESP32
 //#include "ESP8266WiFi.h"                                      // Wifi enable voor ESP8266
