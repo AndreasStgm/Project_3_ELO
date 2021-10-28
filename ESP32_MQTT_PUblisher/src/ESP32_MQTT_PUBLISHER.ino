@@ -57,7 +57,7 @@ void loop() {
   Serial.setTimeout(2000);
   
  // string voor MQTT + inc data
-  String dat = "";                                    // inkomende uitgelezen struct van Arduino BLE
+  String dat = "I dont know why you say goodbye I say hello!";                                    // inkomende uitgelezen struct van Arduino BLE
   
   // data check
   Serial.print("Data: ");
