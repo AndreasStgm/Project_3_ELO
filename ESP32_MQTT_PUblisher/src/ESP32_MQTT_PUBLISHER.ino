@@ -8,7 +8,7 @@ const char* wifi_password = "Elpolloloco69";                                 // 
 
 // MQTT
 const char* mqtt_server = "192.168.137.204";                                   // IP van MQTT broker invullen
-const char* validation_topic = "home/livingroom/validation";    // home/topic nog in te vullen
+const char* validation_topic = "home/validation";    // home/topic nog in te vullen
 const char* mqtt_username = "esp32";                            // MQTT username invullen
 const char* mqtt_password = "esp32";                            // MQTT pw invullen
 const char* clientID = "client_livingroom";                     // MQTT client ID invullen
