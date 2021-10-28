@@ -1,21 +1,21 @@
-#include "PubSubClient.h"                           // connecteer en publish naar MQTT BROKER
-#include "WiFi.h"                                   // Wifi enabler voor ESP32
-//#include "ESP8266WiFi.h"                          // Wifi enable voor ESP8266
+#include "PubSubClient.h"                                       // connecteer en publish naar MQTT BROKER
+#include "WiFi.h"                                               // Wifi enabler voor ESP32
+//#include "ESP8266WiFi.h"                                      // Wifi enable voor ESP8266
 
 // WiFi
-const char* ssid = "";                              // wifi invullen
-const char* wifi_password = "";                     // pw invullen
+const char* ssid = "";                                          // wifi invullen
+const char* wifi_password = "";                                 // pw invullen
 
 // MQTT
-const char* mqtt_server = "";                       // IP van MQTT broker invullen
-const char* validation_topic = "";                  // home/topic nog in te vullen
-const char* mqtt_username = "";                     // MQTT username invullen
-const char* mqtt_password = "";                     // MQTT pw invullen
-const char* clientID = "";                          // MQTT client ID invullen
+const char* mqtt_server = "";                                   // IP van MQTT broker invullen
+const char* validation_topic = "home/livingroom/validation";    // home/topic nog in te vullen
+const char* mqtt_username = "esp32";                            // MQTT username invullen
+const char* mqtt_password = "esp32";                            // MQTT pw invullen
+const char* clientID = "client_livingroom";                     // MQTT client ID invullen
 
 // Start Wifi en MQTT
 WiFiClient wifiClient;
-PubSubClient client(mqtt_server, /*LISTENER PORT BROKER INVULLEN*/1883, wifiClient); 
+PubSubClient client(mqtt_server, /*LISTENER PORT BROKER INVULLEN INGEVAL ANDERE*/1883, wifiClient); 
 
 
 // functie voor met de MQTT te verbinden over wifi
