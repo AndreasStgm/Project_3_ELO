@@ -3,11 +3,11 @@
 //#include "ESP8266WiFi.h"                                      // Wifi enable voor ESP8266
 
 // WiFi
-const char* ssid = "";                                          // wifi invullen
-const char* wifi_password = "";                                 // pw invullen
+const char* ssid = "LAPTOP-16QBLINN 5906";                                          // wifi invullen
+const char* wifi_password = "Elpolloloco69";                                 // pw invullen
 
 // MQTT
-const char* mqtt_server = "";                                   // IP van MQTT broker invullen
+const char* mqtt_server = "192.168.137.204";                                   // IP van MQTT broker invullen
 const char* validation_topic = "home/livingroom/validation";    // home/topic nog in te vullen
 const char* mqtt_username = "esp32";                            // MQTT username invullen
 const char* mqtt_password = "esp32";                            // MQTT pw invullen
