@@ -1,0 +1,13 @@
+{
+    "C_Cpp.errorSquiggles": "Enabled",
+    "files.associations": {
+        "esp32-hal-gpio.h": "c",
+        "esp32-hal.h": "c",
+        "esp_system.h": "c",
+        "esp_sleep.h": "c",
+        "gpio.h": "c",
+        "touch_pad.h": "c",
+        "esp_intr.h": "c",
+        "ets_sys.h": "c"
+    }
+}

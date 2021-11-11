@@ -3,8 +3,10 @@
 #include <MFRC522.h>
 #include <RF24.h>
 
-#define RST_PIN 9
-#define SS_PIN 10
+#define RFID_RST 9
+#define RFID_SS 10
+
+#define ESP_SS 6
 
 struct RFIDPayload
 {
@@ -14,8 +16,8 @@ struct RFIDPayload
     bool userIdentified;
 } userPayload;
 
-MFRC522 RfidReader(SS_PIN, RST_PIN); // Instance of the class
-RF24 Transceiver(7, 8);              // using pin 7 for the CE pin, and pin 8 for the CSN pin
+MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
+RF24 Transceiver(7, 8);                // using pin 7 for the CE pin, and pin 8 for the CSN pin
 
 //-----RFID Users-----
 byte Steven[4] = {167, 154, 66, 51};
@@ -23,8 +25,6 @@ byte Andreas[4] = {163, 245, 191, 50};
 
 //-----nRF24 variables-----
 uint64_t address = 0x696969696969;
-
-float testPayload = 0.0; //test payload
 
 //-----Function Declaration-----
 
