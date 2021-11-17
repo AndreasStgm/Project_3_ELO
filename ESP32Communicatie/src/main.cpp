@@ -1,36 +1,40 @@
 #include <Arduino.h>
-//#include <C:/Users/Suicidal_Kitten/.platformio/packages/framework-arduinoespressif32/libraries/Wire/src/Wire.h>
-#include <Wire.h>
+#include "uart_project.h"
 
-struct RFIDPayload
-{
-  byte uid[10];
-  byte uidSize;
-  char name[20];
-  bool userIdentified;
-} userPayload;
+#define DEBUG
 
-void receiveCallback(int amount)
-{
-  while (1 < Wire.available())
-  {
-    char c = Wire.read();
-    Serial.print(c);
-  }
-  int x = Wire.read();
-  Serial.print(x);
-}
+RFIDPayload receivedPayload;
 
 void setup(void)
 {
-  Serial.begin(9600);
-  Wire.setPins(21, 22);
-  Wire.begin(21, 22);
-  Wire.setClock(400000);
-  Wire.onReceive(receiveCallback);
+  debugSerial.begin(9600);
+  commsSerial.begin(115200);
 }
 
 void loop(void)
 {
-  delay(100);
+  if (commsSerial.available() > 0)
+  {
+    receivedPayload = commsRead();
+#ifdef DEBUG
+    debugSerial.print("Name: ");
+    debugSerial.print(receivedPayload.name);
+    debugSerial.print("\tUID: ");
+    for (byte i = 0; i < receivedPayload.uidSize; i++)
+    {
+      debugSerial.print(receivedPayload.uid[i] < 0x10 ? " 0" : " ");
+      debugSerial.print(receivedPayload.uid[i], DEC);
+    }
+    debugSerial.print("\tRecognized: ");
+    debugSerial.println(receivedPayload.userIdentified);
+#endif
+  }
+  delay(10);
+
+  // if (commsSerial.available() > 1)
+  // {
+  //   debugSerial.print(commsSerial.read());
+  //   debugSerial.print(" ");
+  // }
+  // delay(10);
 }
