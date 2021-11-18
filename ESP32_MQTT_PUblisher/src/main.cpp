@@ -51,26 +51,6 @@ void connect_MQTT()
   }
 }
 
-void setup()
-{
-  Serial.begin(9600);
-}
-
-void callback(char *topic, byte *message, unsigned int length)
-{
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
-  String messageTemp;
-
-  for (int i = 0; i < length; i++)
-  {
-    Serial.print((char)message[i]);
-    messageTemp += (char)message[i];
-  }
-  Serial.println();
-}
-
 void reconnect()
 {
   // Loop until we're reconnected
@@ -93,6 +73,28 @@ void reconnect()
       delay(5000);
     }
   }
+}
+
+void callback(char *topic, byte *message, unsigned int length)
+{
+  Serial.print("Message arrived on topic: ");
+  Serial.print(topic);
+  Serial.print(". Message: ");
+  String messageTemp;
+
+  for (int i = 0; i < length; i++)
+  {
+    Serial.print((char)message[i]);
+    messageTemp += (char)message[i];
+  }
+  Serial.println();
+}
+
+//-----
+
+void setup()
+{
+  Serial.begin(9600);
 }
 
 void loop()
