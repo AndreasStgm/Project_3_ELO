@@ -9,7 +9,7 @@ const char *ssid = "LAPTOP-16QBLINN 5906";   // wifi invullen
 const char *wifi_password = "Elpolloloco69"; // pw invullen
 
 // MQTT
-const char *mqtt_server = "192.168.137.204";       // IP van MQTT broker invullen
+const char *mqtt_server = "192.168.137.52";        // IP van MQTT broker invullen
 const char *validation_topic = "/home/validation"; // home/topic nog in te vullen
 const char *mqtt_username = "esp32";               // MQTT username invullen
 const char *mqtt_password = "esp32";               // MQTT pw invullen
@@ -51,62 +51,62 @@ void connect_MQTT()
   }
 }
 
-void reconnect()
-{
-  // Loop until we're reconnected
-  while (!client.connected())
-  {
-    Serial.print("Attempting MQTT connection...");
-    // Attempt to connect
-    if (client.connect("esp32"))
-    {
-      Serial.println("connected");
-      // Subscribe
-      client.subscribe("home/whattodo");
-    }
-    else
-    {
-      Serial.print("failed, rc=");
-      Serial.print(client.state());
-      Serial.println(" try again in 5 seconds");
-      // Wait 5 seconds before retrying
-      delay(5000);
-    }
-  }
-}
+// void reconnect()
+// {
+//   // Loop until we're reconnected
+//   while (!client.connected())
+//   {
+//     Serial.print("Attempting MQTT connection...");
+//     // Attempt to connect
+//     if (client.connect("esp32"))
+//     {
+//       Serial.println("connected");
+//       // Subscribe
+//       client.subscribe("home/whattodo");
+//     }
+//     else
+//     {
+//       Serial.print("failed, rc=");
+//       Serial.print(client.state());
+//       Serial.println(" try again in 5 seconds");
+//       // Wait 5 seconds before retrying
+//       delay(5000);
+//     }
+//   }
+// }
 
-void callback(char *topic, byte *message, unsigned int length)
-{
-  Serial.print("Message arrived on topic: ");
-  Serial.print(topic);
-  Serial.print(". Message: ");
-  String messageTemp;
+// void callback(char *topic, byte *message, unsigned int length)
+// {
+//   Serial.print("Message arrived on topic: ");
+//   Serial.print(topic);
+//   Serial.print(". Message: ");
+//   String messageTemp;
 
-  for (int i = 0; i < length; i++)
-  {
-    Serial.print((char)message[i]);
-    messageTemp += (char)message[i];
-  }
-  Serial.println();
-}
+//   for (int i = 0; i < length; i++)
+//   {
+//     Serial.print((char)message[i]);
+//     messageTemp += (char)message[i];
+//   }
+//   Serial.println();
+// }
 
 //-----
 
 void setup()
 {
   Serial.begin(9600);
+  connect_MQTT();
 }
 
 void loop()
 {
-  if (!client.connected())
-  {
-    reconnect();
-  }
-  client.loop();
-  callback();
+  // if (!client.connected())
+  // {
+  //   reconnect();
+  // }
+  // client.loop();
+  // callback();
 
-  connect_MQTT();
   Serial.setTimeout(2000);
 
   // string voor MQTT + inc data
