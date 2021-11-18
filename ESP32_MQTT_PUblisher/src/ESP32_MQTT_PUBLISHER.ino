@@ -9,7 +9,7 @@ const char* wifi_password = "Elpolloloco69";                                 // 
 
 // MQTT
 const char* mqtt_server = "192.168.137.204";                                   // IP van MQTT broker invullen
-const char* validation_topic = "home/validation";    // home/topic nog in te vullen
+const char* validation_topic = "/home/validation";    // home/topic nog in te vullen
 const char* mqtt_username = "esp32";                            // MQTT username invullen
 const char* mqtt_password = "esp32";                            // MQTT pw invullen
 const char* clientID = "client_home";                     // MQTT client ID invullen
@@ -64,21 +64,6 @@ void callback(char* topic, byte* message, unsigned int length) {
     messageTemp += (char)message[i];
   }
   Serial.println();
-
-  // Feel free to add more if statements to control more GPIOs with MQTT
-
-  // If a message is received on the topic esp32/output, you check if the message is either "on" or "off". 
-  // Changes the output state according to the message
-  if (String(topic) == "esp32/whattodo") {
-    Serial.print("Changing output to ");
-    if(messageTemp == "on"){
-      Serial.println("on");
-      digitalWrite(ledPin, HIGH); // vervangen door code voor de card en voice aan te sturen?
-    }
-    else if(messageTemp == "off"){
-      Serial.println("off");
-      digitalWrite(ledPin, LOW); // vervangen door code voor de card en voice aan te sturen?
-    }
   }
 }
 
