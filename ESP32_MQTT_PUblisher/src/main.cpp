@@ -14,10 +14,16 @@ const char *wifi_password = "computer"; // pw invullen
 
 // MQTT
 const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
-const char *validation_topic = "RFID tag";   // home/topic nog in te vullen
+const char *validationRFID_topic = "RFID tag";   // home/topic nog in te vullen
 const char *mqtt_username = "ijmert";        // MQTT username invullen
 const char *mqtt_password = "ijmert";        // MQTT pw invullen
 const char *clientID = "client_home";        // MQTT client ID invullen
+
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+const char *validationVOICE_topic = "VOICE tag";  // mathias sub_test
+const char *faceid_topic = "faceid tag"; 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Start Wifi en MQTT
 WiFiClient wifiClient;
@@ -87,8 +93,12 @@ void loop()
   // debugSerial.print("Data: ");
   debugSerial.print(dataToSend);
 
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  client.subscribe(faceid_topic); //mathias sub test
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   // PUBLISH naar MQTT Broker (topic = Validation)
-  if (client.publish(validation_topic, String(dataToSend).c_str()))
+  if (client.publish(validationRFID_topic, String(dataToSend).c_str()))
   {
     // delay(100);
     // debugSerial.println("Data sent!");
@@ -99,9 +109,27 @@ void loop()
     debugSerial.println("\nData failed to send. Reconnecting to MQTT Broker and trying again\n");
     client.connect(clientID, mqtt_username, mqtt_password);
     delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen blijkbaar
-    client.publish(validation_topic, String(dataToSend).c_str());
+    client.publish(validationRFID_topic, String(dataToSend).c_str());
   }
-
+  
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+   // PUBLISH naar MQTT Broker (topic = Validation)
+  if (client.publish(validationVOICE_topic, String(dataToSend).c_str()))        // mathias pub_test
+  {
+    // delay(100);
+    // debugSerial.println("Data sent!");
+  }
+  //Als het niet lukt krijgen we volgende melding en probeert hij opnieuw
+  else
+  {
+    debugSerial.println("\nData failed to send. Reconnecting to MQTT Broker and trying again\n");
+    client.connect(clientID, mqtt_username, mqtt_password);
+    delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen blijkbaar
+    client.publish(validationVOICE_topic, String(dataToSend).c_str());
+  }
+  ////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  
   client.disconnect(); // disconnect MQTT broker
   delay(30000);
   // }
