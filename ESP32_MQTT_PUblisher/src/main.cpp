@@ -20,6 +20,12 @@ const char *mqtt_username = "ijmert";      // MQTT username invullen
 const char *mqtt_password = "ijmert";      // MQTT pw invullen
 const char *clientID = "client_home";      // MQTT client ID invullen
 
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+const char *validationVOICE_topic = "VOICE tag";  // mathias sub_test
+const char *faceid_topic = "faceid tag"; 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 // Start Wifi en MQTT
 WiFiClient wifiClient;
 // RFIDPayload receivedPayload;
