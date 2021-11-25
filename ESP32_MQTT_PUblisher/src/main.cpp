@@ -81,11 +81,23 @@ void setup()
 void loop()
 {
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  String test = "Ik ben het";
-  client.publish(FacialRecognition_topic, String(test).c_str());
-  client.subscribe(FacialRecognition_topic); //mathias sub test
-  string FacialID = Serial.readString();
-  printf FacialID;
+  for(int i = 0;i<101;i++)
+  {
+    String test = i;
+    client.publish(FacialRecognition_topic, String(test).c_str());
+    client.subscribe(FacialRecognition_topic);                                  //mathias sub test
+    debugSerial.print("Sub done. now FacialID");
+    string FacialID = Serial.readString();
+    if(FacialID == test)
+    {
+      debugSerial.print(FacialID);
+      debugSerial.print("Succes");
+    }
+    else
+    {
+      debugSerial.print("Failerino :(");
+    }
+  }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   if (commsSerial.available() > 0)
