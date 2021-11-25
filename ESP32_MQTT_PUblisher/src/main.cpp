@@ -7,24 +7,18 @@
 // const char *ssid = "LAPTOP-16QBLINN 5906";   // wifi invullen
 // const char *wifi_password = "Elpolloloco69"; // pw invullen
 
-// const char *ssid = "ijmertnet";         // wifi invullen
-// const char *wifi_password = "computer"; // pw invullen
+const char *ssid = "ijmertnet";         // wifi invullen
+const char *wifi_password = "computer"; // pw invullen
 
-const char *ssid = "telenet-31A20";                             // wifi invullen
-const char *wifi_password = "tHe2e6ebaphAdREnakeVawR5ThuwREwe"; // pw invullen
+// const char *ssid = "telenet-31A20";                             // wifi invullen
+// const char *wifi_password = "tHe2e6ebaphAdREnakeVawR5ThuwREwe"; // pw invullen
 
 // MQTT
-const char *mqtt_server = "192.168.0.201"; // IP van MQTT broker invullen
-const char *validation_topic = "RFIDtag";  // home/topic nog in te vullen
-const char *mqtt_username = "ijmert";      // MQTT username invullen
-const char *mqtt_password = "ijmert";      // MQTT pw invullen
-const char *clientID = "client_home";      // MQTT client ID invullen
-
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-const char *validationVOICE_topic = "VOICE tag";  // mathias sub_test
-const char *faceid_topic = "faceid tag"; 
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
+const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
+const char *validation_topic = "RFIDtag";    // home/topic nog in te vullen
+const char *mqtt_username = "ijmert";        // MQTT username invullen
+const char *mqtt_password = "ijmert";        // MQTT pw invullen
+const char *clientID = "client_home";        // MQTT client ID invullen
 
 // Start Wifi en MQTT
 WiFiClient wifiClient;
