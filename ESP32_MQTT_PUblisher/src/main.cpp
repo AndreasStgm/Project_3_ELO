@@ -15,10 +15,15 @@ const char *wifi_password = "computer"; // pw invullen
 
 // MQTT
 const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
-const char *validation_topic = "RFIDtag";    // home/topic nog in te vullen
+const char *RFIDtag_topic = "RFIDtag";    // home/topic nog in te vullen
 const char *mqtt_username = "ijmert";        // MQTT username invullen
 const char *mqtt_password = "ijmert";        // MQTT pw invullen
 const char *clientID = "client_home";        // MQTT client ID invullen
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+const char *VoiceRecognition_topic = "VoiceRecognition";  // mathias sub_test
+const char *FacialRecognition_topic = "FacialRecognition"; 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Start Wifi en MQTT
 WiFiClient wifiClient;
@@ -75,6 +80,12 @@ void setup()
 
 void loop()
 {
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  String test = "Ik ben het";
+  client.publish(FacialRecognition_topic, String(test).c_str());
+  client.subscribe(FacialRecognition_topic); //mathias sub test
+///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
   if (commsSerial.available() > 0)
   {
     RFIDPayload receivedPayload = commsRead();
@@ -90,7 +101,7 @@ void loop()
     debugSerial.println(dataToSend);
 
     // PUBLISH naar MQTT Broker (topic = Validation)
-    if (client.publish(validation_topic, String(dataToSend).c_str()))
+    if (client.publish(RFIDtag_topic, String(dataToSend).c_str()))
     {
       delay(100);
       debugSerial.println("Data sent!");
@@ -101,7 +112,7 @@ void loop()
       debugSerial.println("Data failed to send. Reconnecting to MQTT Broker and trying again\n");
       client.connect(clientID, mqtt_username, mqtt_password);
       delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
-      client.publish(validation_topic, String(dataToSend).c_str());
+      client.publish(RFIDtag_topic, String(dataToSend).c_str());
     }
 
     client.disconnect(); // disconnect MQTT broker
