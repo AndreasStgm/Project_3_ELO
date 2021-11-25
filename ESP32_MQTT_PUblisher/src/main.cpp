@@ -4,44 +4,17 @@
 #include "uart_project.h"
 
 // WiFi
-<<<<<<< Updated upstream
 //const char *ssid = "LAPTOP-Paco";   // wifi invullen
 //const char *wifi_password = "Elpolloloco69"; // pw invullen
-=======
-<<<<<<< Updated upstream
-const char *ssid = "LAPTOP-Paco";   // wifi invullen
-const char *wifi_password = "Elpolloloco69"; // pw invullen
->>>>>>> Stashed changes
 
 const char *ssid = "ijmertnet";         // wifi invullen
 const char *wifi_password = "computer"; // pw invullen
 
-// const char *ssid = "telenet-31A20";                             // wifi invullen
-// const char *wifi_password = "tHe2e6ebaphAdREnakeVawR5ThuwREwe"; // pw invullen
-
 // MQTT
 const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
-const char *RFIDtag_topic = "RFIDtag";    // home/topic nog in te vullen
-<<<<<<< Updated upstream
+const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
 const char *mqtt_username = "ijmert";        // MQTT username invullen
 const char *mqtt_password = "ijmert";        // MQTT pw invullen
-=======
-const char *mqtt_username = "esp32";        // MQTT username invullen
-const char *mqtt_password = "esp32";        // MQTT pw invullen
-=======
-const char *ssid = "LAPTOP-Paco";            // wifi invullen
-const char *wifi_password = "Elpolloloco69"; // pw invullen
-
-// const char *ssid = "ijmertnet";         // wifi invullen
-// const char *wifi_password = "computer"; // pw invullen
-
-// MQTT
-const char *mqtt_server = "192.168.137.195"; // IP van MQTT broker invullen
-const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
-const char *mqtt_username = "esp32";         // MQTT username invullen
-const char *mqtt_password = "esp32";         // MQTT pw invullen
->>>>>>> Stashed changes
->>>>>>> Stashed changes
 const char *clientID = "client_home";        // MQTT client ID invullen
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -104,16 +77,15 @@ void setup()
 
 void loop()
 {
-<<<<<<< Updated upstream
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  for(int i = 0;i<101;i++)
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  for (int i = 0; i < 101; i++)
   {
-    String test = i;
+    String test = (String)i;
     client.publish(FacialRecognition_topic, String(test).c_str());
-    client.subscribe(FacialRecognition_topic);                                  //mathias sub test
+    client.subscribe(FacialRecognition_topic); //mathias sub test
     debugSerial.print("Sub done. now FacialID");
-    string FacialID = Serial.readString();
-    if(FacialID == test)
+    String FacialID = Serial.readString();
+    if (FacialID == test)
     {
       debugSerial.print(FacialID);
       debugSerial.print("Succes");
@@ -123,16 +95,7 @@ void loop()
       debugSerial.print("Failerino :(");
     }
   }
-///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  
-=======
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  String test = "Ik ben het";
-  client.publish(FacialRecognition_topic, String(test).c_str());
-  client.subscribe(FacialRecognition_topic); //mathias sub test
-                                             ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-
->>>>>>> Stashed changes
   if (commsSerial.available() > 0)
   {
     RFIDPayload receivedPayload = commsRead();
