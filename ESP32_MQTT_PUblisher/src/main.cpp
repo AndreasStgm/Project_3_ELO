@@ -83,16 +83,16 @@ void loop()
     String test = (String)i;
     client.publish(FacialRecognition_topic, String(test).c_str());
     client.subscribe(FacialRecognition_topic); //mathias sub test
-    debugSerial.print("Sub done. now FacialID");
+    debugSerial.print("Sub done. now FacialID\n");
     String FacialID = Serial.readString();
-    if (FacialID == test)
+    if (strcmp(FacialID,test)==0)
     {
       debugSerial.print(FacialID);
-      debugSerial.print("Succes");
+      debugSerial.print("Succes\n");
     }
     else
     {
-      debugSerial.print("Failerino :(");
+      debugSerial.print("Failerino :(\n");
     }
   }
   ///////////////////////////////////////////////////////////////////////////////////////////////////////////
