@@ -4,11 +4,11 @@
 #include "uart_project.h"
 
 // WiFi
-// const char *ssid = "LAPTOP-16QBLINN 5906";   // wifi invullen
-// const char *wifi_password = "Elpolloloco69"; // pw invullen
+const char *ssid = "LAPTOP-Paco";   // wifi invullen
+const char *wifi_password = "Elpolloloco69"; // pw invullen
 
-const char *ssid = "ijmertnet";         // wifi invullen
-const char *wifi_password = "computer"; // pw invullen
+//const char *ssid = "ijmertnet";         // wifi invullen
+//const char *wifi_password = "computer"; // pw invullen
 
 // const char *ssid = "telenet-31A20";                             // wifi invullen
 // const char *wifi_password = "tHe2e6ebaphAdREnakeVawR5ThuwREwe"; // pw invullen
@@ -16,8 +16,8 @@ const char *wifi_password = "computer"; // pw invullen
 // MQTT
 const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
 const char *RFIDtag_topic = "RFIDtag";    // home/topic nog in te vullen
-const char *mqtt_username = "ijmert";        // MQTT username invullen
-const char *mqtt_password = "ijmert";        // MQTT pw invullen
+const char *mqtt_username = "esp32";        // MQTT username invullen
+const char *mqtt_password = "esp32";        // MQTT pw invullen
 const char *clientID = "client_home";        // MQTT client ID invullen
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,6 +84,8 @@ void loop()
   String test = "Ik ben het";
   client.publish(FacialRecognition_topic, String(test).c_str());
   client.subscribe(FacialRecognition_topic); //mathias sub test
+  string FacialID = Serial.readString();
+  printf FacialID;
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   if (commsSerial.available() > 0)
