@@ -51,18 +51,23 @@ void connect_MQTT() // functie voor met de MQTT te verbinden over wifi
     debugSerial.println("Connection to MQTT Broker failed...");
 }
 
+//----------
+
 void setup(void)
 {
   debugSerial.begin(9600);
   commsSerial.begin(115200);
 
   connect_MQTT();
+  commsSerial.flush();
 }
 
 void loop(void)
 {
+
   if (commsSerial.available() > 0)
   {
+    debugSerial.print(commsSerial.available());
     RFIDPayload receivedPayload = commsRead();
 #ifdef DEBUG
     debugSerial.print("Name: ");
@@ -96,10 +101,14 @@ void loop(void)
     //Als het niet lukt krijgen we volgende melding en probeert hij opnieuw
     else
     {
-      debugSerial.println("Data failed to send. Reconnecting to MQTT Broker and trying again\n");
+      debugSerial.println("Data failed to send. Reconnecting to MQTT Broker and trying again");
       client.connect(clientID, mqtt_username, mqtt_password);
       delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
-      client.publish(validation_topic, String(dataToSend).c_str());
+      if (client.publish(validation_topic, String(dataToSend).c_str()))
+      {
+        delay(100);
+        debugSerial.println("Data sent after retry!");
+      }
     }
     client.disconnect(); // disconnect MQTT broker
     delay(10);

@@ -4,8 +4,14 @@
 #include "uart_project.h"
 
 // WiFi
+<<<<<<< Updated upstream
 //const char *ssid = "LAPTOP-Paco";   // wifi invullen
 //const char *wifi_password = "Elpolloloco69"; // pw invullen
+=======
+<<<<<<< Updated upstream
+const char *ssid = "LAPTOP-Paco";   // wifi invullen
+const char *wifi_password = "Elpolloloco69"; // pw invullen
+>>>>>>> Stashed changes
 
 const char *ssid = "ijmertnet";         // wifi invullen
 const char *wifi_password = "computer"; // pw invullen
@@ -16,13 +22,31 @@ const char *wifi_password = "computer"; // pw invullen
 // MQTT
 const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
 const char *RFIDtag_topic = "RFIDtag";    // home/topic nog in te vullen
+<<<<<<< Updated upstream
 const char *mqtt_username = "ijmert";        // MQTT username invullen
 const char *mqtt_password = "ijmert";        // MQTT pw invullen
+=======
+const char *mqtt_username = "esp32";        // MQTT username invullen
+const char *mqtt_password = "esp32";        // MQTT pw invullen
+=======
+const char *ssid = "LAPTOP-Paco";            // wifi invullen
+const char *wifi_password = "Elpolloloco69"; // pw invullen
+
+// const char *ssid = "ijmertnet";         // wifi invullen
+// const char *wifi_password = "computer"; // pw invullen
+
+// MQTT
+const char *mqtt_server = "192.168.137.195"; // IP van MQTT broker invullen
+const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
+const char *mqtt_username = "esp32";         // MQTT username invullen
+const char *mqtt_password = "esp32";         // MQTT pw invullen
+>>>>>>> Stashed changes
+>>>>>>> Stashed changes
 const char *clientID = "client_home";        // MQTT client ID invullen
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-const char *VoiceRecognition_topic = "VoiceRecognition";  // mathias sub_test
-const char *FacialRecognition_topic = "FacialRecognition"; 
+const char *VoiceRecognition_topic = "VoiceRecognition"; // mathias sub_test
+const char *FacialRecognition_topic = "FacialRecognition";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 // Start Wifi en MQTT
@@ -80,6 +104,7 @@ void setup()
 
 void loop()
 {
+<<<<<<< Updated upstream
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   for(int i = 0;i<101;i++)
   {
@@ -100,6 +125,14 @@ void loop()
   }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
   
+=======
+  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  String test = "Ik ben het";
+  client.publish(FacialRecognition_topic, String(test).c_str());
+  client.subscribe(FacialRecognition_topic); //mathias sub test
+                                             ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+>>>>>>> Stashed changes
   if (commsSerial.available() > 0)
   {
     RFIDPayload receivedPayload = commsRead();

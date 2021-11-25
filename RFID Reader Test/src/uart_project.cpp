@@ -56,8 +56,9 @@ RFIDPayload formatIntoStruct()
 
 void commsSend(RFIDPayload *sendPayload)
 {
-    if (commsSerial.availableForWrite() > 0)
+    if (commsSerial.availableForWrite() > -1)
     {
+
         commsSerial.write(SOT); //start of transmission
 
         commsSerial.write(sendPayload->uidSize); //uidSize

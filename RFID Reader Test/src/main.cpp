@@ -6,17 +6,17 @@
 #define RFID_RST 9
 #define RFID_SS 10
 
-//#define DEBUG // Enable to have debug info
+#define DEBUG // Enable to have debug info
 
 RFIDPayload userPayload;
 
 MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
 
-//-----RFID Users-----
+// //-----RFID Users-----
 byte Steven[4] = {167, 154, 66, 51};
 byte Andreas[4] = {163, 245, 191, 50};
 
-//-----Function Declaration-----
+// //-----Function Declaration-----
 
 void printDec(byte *buffer, byte bufferSize);
 void UserCorrect(byte *userUid, byte userUidSize, String userName);
@@ -69,7 +69,6 @@ void loop()
 }
 
 //-----Functions-----
-
 void printDec(byte *buffer, byte bufferSize)
 {
     for (byte i = 0; i < bufferSize; i++)
