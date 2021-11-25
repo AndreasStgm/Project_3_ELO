@@ -56,31 +56,30 @@ RFIDPayload formatIntoStruct()
 
 void commsSend(RFIDPayload *sendPayload)
 {
-    if (commsSerial.availableForWrite() > -1)
+    // if (commsSerial.availableForWrite() > 0) // moet uitgecomment worden voor de nano ble sense
+    // {
+    commsSerial.write(SOT); //start of transmission
+
+    commsSerial.write(sendPayload->uidSize); //uidSize
+
+    for (uint8_t i = 0; i < sendPayload->uidSize; i++) //uid
+        commsSerial.write(sendPayload->uid[i]);
+
+    if (sendPayload->userIdentified == true) //userIdentified
+        commsSerial.write(BOOL_TRUE);
+    else
+        commsSerial.write(BOOL_FALSE);
+
+    commsSerial.write(STX); //name
+    for (uint8_t i = 0; i < sizeof(sendPayload->name); i++)
     {
-
-        commsSerial.write(SOT); //start of transmission
-
-        commsSerial.write(sendPayload->uidSize); //uidSize
-
-        for (uint8_t i = 0; i < sendPayload->uidSize; i++) //uid
-            commsSerial.write(sendPayload->uid[i]);
-
-        if (sendPayload->userIdentified == true) //userIdentified
-            commsSerial.write(BOOL_TRUE);
+        if (sendPayload->name != NULL)
+            commsSerial.write(sendPayload->name[i]);
         else
-            commsSerial.write(BOOL_FALSE);
-
-        commsSerial.write(STX); //name
-        for (uint8_t i = 0; i < sizeof(sendPayload->name); i++)
-        {
-            if (sendPayload->name != NULL)
-                commsSerial.write(sendPayload->name[i]);
-            else
-                break;
-        }
-        commsSerial.write(ETX);
-
-        commsSerial.write(EOT);
+            break;
     }
+    commsSerial.write(ETX);
+
+    commsSerial.write(EOT);
+    // }
 }
