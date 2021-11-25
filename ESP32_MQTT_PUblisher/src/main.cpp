@@ -85,7 +85,8 @@ void loop()
     client.subscribe(FacialRecognition_topic); //mathias sub test
     debugSerial.print("Sub done. now FacialID\n");
     String FacialID = Serial.readString();
-    if (strcmp(FacialID.c_str(), test.c_str()) == 0)
+    debugSerial.print(FacialID);
+    if (strcmp(FacialID.c_str(), test.c_str()) != 0)
     {
       debugSerial.print(FacialID);
       debugSerial.print("Succes\n");
