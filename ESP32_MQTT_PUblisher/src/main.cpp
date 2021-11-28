@@ -7,14 +7,23 @@
 //const char *ssid = "LAPTOP-Paco";   // wifi invullen
 //const char *wifi_password = "Elpolloloco69"; // pw invullen
 
-const char *ssid = "ijmertnet";         // wifi invullen
-const char *wifi_password = "computer"; // pw invullen
+// const char *ssid = "ijmertnet";         // wifi invullen
+// const char *wifi_password = "computer"; // pw invullen
+
+const char *ssid = "Orange-6f9d5";         // wifi invullen
+const char *wifi_password = "Qwcf933c"; // pw invullen
 
 // MQTT
-const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen
+// const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen 192.168.0.13
+// const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
+// const char *mqtt_username = "ijmert";        // MQTT username invullen
+// const char *mqtt_password = "ijmert";        // MQTT pw invullen
+// const char *clientID = "client_home";        // MQTT client ID invullen
+
+const char *mqtt_server = "192.168.0.13"; // IP van MQTT broker invullen 192.168.0.13
 const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
-const char *mqtt_username = "ijmert";        // MQTT username invullen
-const char *mqtt_password = "ijmert";        // MQTT pw invullen
+const char *mqtt_username = "esp32";        // MQTT username invullen
+const char *mqtt_password = "esp32";        // MQTT pw invullen
 const char *clientID = "client_home";        // MQTT client ID invullen
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -22,10 +31,33 @@ const char *VoiceRecognition_topic = "VoiceRecognition"; // mathias sub_test
 const char *FacialRecognition_topic = "FacialRecognition";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+char* Topic;
+byte* buffer;
+boolean Rflag=false;
+int r_len;
+
 // Start Wifi en MQTT
 WiFiClient wifiClient;
 // RFIDPayload receivedPayload;
 PubSubClient client(mqtt_server, /*LISTENER PORT BROKER INVULLEN INGEVAL ANDERE*/ 1883, wifiClient);
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+void callback(char* topic, byte* payload, unsigned int length) {
+   //Payload=[];
+   Topic=topic;
+   Rflag=true; //will use in main loop
+   r_len=length; //will use in main loop
+   debugSerial.print("length message received in callback= ");
+   debugSerial.println(length);
+    for (int i=0;i<length;i++) 
+    {
+    buffer[i]=payload[i];
+    debugSerial.print((char)payload[i]);
+    }
+
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 // functie voor met de MQTT te verbinden over wifi
 void connect_MQTT()
@@ -52,6 +84,10 @@ void connect_MQTT()
   if (client.connect(clientID, mqtt_username, mqtt_password))
   {
     debugSerial.println("Connected to MQTT Broker!");
+    /////////////////////////////////////////////////////////////////////////////////////////////////
+    client.subscribe(FacialRecognition_topic,2);    // mathias subtest 
+    // client.setCallback(callback);
+    /////////////////////////////////////////////////////////////////////////////////////////////////
   }
   else
   {
@@ -73,30 +109,38 @@ void setup()
   commsSerial.begin(115200);
 
   connect_MQTT();
+  // client.subscribe(FacialRecognition_topic,2);
+  client.setCallback(callback);
 }
 
 void loop()
 {
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-  for (int i = 0; i < 101; i++)
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
+// client.subscribe(FacialRecognition_topic,2);
+String msg = "test message";
+client.publish(FacialRecognition_topic, String(msg).c_str());
+
+delay(1000);
+
+    
+if(Rflag)
+{
+  debugSerial.print("Message arrived in main loop[");
+  debugSerial.print(Topic);
+  debugSerial.print("] ");
+  debugSerial.print("message length = ");
+  debugSerial.print(r_len);
+  //Serial.print(Payload);
+  for (int i=0;i<r_len;i++) 
   {
-    String test = (String)i;
-    client.publish(FacialRecognition_topic, String(test).c_str());
-    client.subscribe(FacialRecognition_topic); //mathias sub test
-    debugSerial.print("Sub done. now FacialID\n");
-    String FacialID = Serial.readString();
-    debugSerial.print(FacialID);
-    if (strcmp(FacialID.c_str(), test.c_str()) != 0)
-    {
-      debugSerial.print(FacialID);
-      debugSerial.print("Succes\n");
-    }
-    else
-    {
-      debugSerial.print("Failerino :(\n");
-    }
+    debugSerial.print((char)buffer[i]);
   }
-  ///////////////////////////////////////////////////////////////////////////////////////////////////////////
+  debugSerial.println();
+  Rflag=false;
+}
+/////////////////////////////////////////////////////////////////////////////////////////////////  
+  
   if (commsSerial.available() > 0)
   {
     RFIDPayload receivedPayload = commsRead();
