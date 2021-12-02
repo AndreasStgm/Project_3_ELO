@@ -4,7 +4,7 @@
 #include "uart_project.h"
 
 // WiFi
-const char *ssid = "LAPTOP-Paco";   // wifi invullen
+const char *ssid = "LAPTOP-Paco";            // wifi invullen
 const char *wifi_password = "Elpolloloco69"; // pw invullen
 
 //~ const char *ssid = "ijmertnet";         // wifi invullen
@@ -39,7 +39,7 @@ const char *FacialRecognition_topic = "FacialRecognition";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 char *Topic;
-byte *buffer;
+byte buffer[15];
 boolean Rflag = false;
 int r_len;
 boolean succes;
@@ -63,7 +63,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     buffer[i] = payload[i];
     debugSerial.print((char)payload[i]);
   }
-  Serial.println();
+  Serial.print("For passed");
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -118,23 +118,24 @@ void setup()
 
   //client.setServer(mqtt_server, 1883); //test 02/12
   client.setCallback(callback);
-  succes = client.subscribe(FacialRecognition_topic);
   connect_MQTT();
   // client.subscribe(FacialRecognition_topic,2);
 }
 
 void loop()
 {
-
+  client.connect(clientID, mqtt_username, mqtt_password);
+  succes = client.subscribe(FacialRecognition_topic);
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // client.subscribe(FacialRecognition_topic,2);
-  String msg = "test message";
-  client.publish(FacialRecognition_topic, String(msg).c_str());
+  // String msg = "test message";
+  // client.publish(FacialRecognition_topic, String(msg).c_str());
 
-  delay(1000);
+  // delay(1000);
+
   client.loop();
 
-  if (Rflag != 0)
+  if (Rflag)
   {
     debugSerial.print("Message arrived in main loop[");
     debugSerial.print(Topic);
@@ -149,9 +150,7 @@ void loop()
     debugSerial.println();
     Rflag = false;
   }
-  
-  
-  
+
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (commsSerial.available() > 0)
