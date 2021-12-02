@@ -127,10 +127,10 @@ void loop()
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
   // client.subscribe(FacialRecognition_topic,2);
-  //~ String msg = "test message";
-  //~ client.publish(FacialRecognition_topic, String(msg).c_str());
+  String msg = "test message";
+  client.publish(FacialRecognition_topic, String(msg).c_str());
 
-  //~ delay(1000);
+  delay(1000);
   client.loop();
 
   if (Rflag)
