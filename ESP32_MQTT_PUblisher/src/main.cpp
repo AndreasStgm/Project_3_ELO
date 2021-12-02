@@ -63,6 +63,7 @@ void callback(char *topic, byte *payload, unsigned int length)
     buffer[i] = payload[i];
     debugSerial.print((char)payload[i]);
   }
+  Serial.println();
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
