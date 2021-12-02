@@ -148,8 +148,11 @@ void loop()
     debugSerial.println();
     Rflag = false;
   }
+  if(succes > 0)
+  {
   debugSerial.println("waarde sub: ");
   debugSerial.println(succes);
+  }
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (commsSerial.available() > 0)
