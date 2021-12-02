@@ -7,20 +7,27 @@
 //const char *ssid = "LAPTOP-Paco";   // wifi invullen
 //const char *wifi_password = "Elpolloloco69"; // pw invullen
 
-// const char *ssid = "ijmertnet";         // wifi invullen
-// const char *wifi_password = "computer"; // pw invullen
+const char *ssid = "ijmertnet";         // wifi invullen
+const char *wifi_password = "computer"; // pw invullen
 
-const char *ssid = "Orange-6f9d5";         // wifi invullen
-const char *wifi_password = "Qwcf933c"; // pw invullen
+//const char *ssid = "Orange-6f9d5";         // wifi invullen
+//const char *wifi_password = "Qwcf933c"; // pw invullen
 
-// MQTT
+// MQTT Ijmerts
 // const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen 192.168.0.13
 // const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
 // const char *mqtt_username = "ijmert";        // MQTT username invullen
 // const char *mqtt_password = "ijmert";        // MQTT pw invullen
 // const char *clientID = "client_home";        // MQTT client ID invullen
 
-const char *mqtt_server = "192.168.0.13"; // IP van MQTT broker invullen 192.168.0.13
+// MQTT Mathias
+//~ const char *mqtt_server = "192.168.0.13"; // IP van MQTT broker invullen 192.168.0.13
+//~ const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
+//~ const char *mqtt_username = "esp32";        // MQTT username invullen
+//~ const char *mqtt_password = "esp32";        // MQTT pw invullen
+//~ const char *clientID = "client_home";        // MQTT client ID invullen
+
+const char *mqtt_server = "192.168.137.103"; // IP van MQTT broker invullen 192.168.0.13
 const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
 const char *mqtt_username = "esp32";        // MQTT username invullen
 const char *mqtt_password = "esp32";        // MQTT pw invullen
@@ -36,6 +43,7 @@ char* Topic;
 byte* buffer;
 boolean Rflag=false;
 int r_len;
+boolean succes;
 
 // Start Wifi en MQTT
 WiFiClient wifiClient;
@@ -85,7 +93,7 @@ void connect_MQTT()
   {
     debugSerial.println("Connected to MQTT Broker!");
     /////////////////////////////////////////////////////////////////////////////////////////////////
-    client.subscribe(FacialRecognition_topic,2);    // mathias subtest 
+    //boolean succes = client.subscribe(FacialRecognition_topic);    // mathias subtest 
     // client.setCallback(callback);
     /////////////////////////////////////////////////////////////////////////////////////////////////
   }
@@ -107,10 +115,13 @@ void setup()
 
   debugSerial.begin(9600);
   commsSerial.begin(115200);
-
+  
+  client.setServer(mqtt_server,1883); //test 02/12
+  client.setCallback(callback);
+  boolean succes = client.subscribe(FacialRecognition_topic);  
   connect_MQTT();
   // client.subscribe(FacialRecognition_topic,2);
-  client.setCallback(callback);
+  
 }
 
 void loop()
@@ -118,11 +129,11 @@ void loop()
 
 /////////////////////////////////////////////////////////////////////////////////////////////////
 // client.subscribe(FacialRecognition_topic,2);
-String msg = "test message";
-client.publish(FacialRecognition_topic, String(msg).c_str());
+//~ String msg = "test message";
+//~ client.publish(FacialRecognition_topic, String(msg).c_str());
 
-delay(1000);
-
+//~ delay(1000);
+client.loop();
     
 if(Rflag)
 {
@@ -139,6 +150,8 @@ if(Rflag)
   debugSerial.println();
   Rflag=false;
 }
+debugSerial.println(waarde sub: );
+debugSerial.println(succes);
 /////////////////////////////////////////////////////////////////////////////////////////////////  
   
   if (commsSerial.available() > 0)
