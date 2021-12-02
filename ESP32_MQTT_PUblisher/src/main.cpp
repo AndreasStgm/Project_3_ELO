@@ -115,7 +115,7 @@ void setup()
   debugSerial.begin(9600);
   commsSerial.begin(115200);
 
-  client.setServer(mqtt_server, 1883); //test 02/12
+  //client.setServer(mqtt_server, 1883); //test 02/12
   client.setCallback(callback);
   succes = client.subscribe(FacialRecognition_topic);
   connect_MQTT();
@@ -148,11 +148,9 @@ void loop()
     debugSerial.println();
     Rflag = false;
   }
-  if (succes > 0)
-  {
-    debugSerial.println("waarde sub: ");
-    debugSerial.println(succes);
-  }
+  
+  
+  
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
   if (commsSerial.available() > 0)
