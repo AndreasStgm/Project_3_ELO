@@ -4,11 +4,11 @@
 #include "uart_project.h"
 
 // WiFi
-//const char *ssid = "LAPTOP-Paco";   // wifi invullen
-//const char *wifi_password = "Elpolloloco69"; // pw invullen
+const char *ssid = "LAPTOP-Paco";   // wifi invullen
+const char *wifi_password = "Elpolloloco69"; // pw invullen
 
-const char *ssid = "ijmertnet";         // wifi invullen
-const char *wifi_password = "computer"; // pw invullen
+//~ const char *ssid = "ijmertnet";         // wifi invullen
+//~ const char *wifi_password = "computer"; // pw invullen
 
 //const char *ssid = "Orange-6f9d5";         // wifi invullen
 //const char *wifi_password = "Qwcf933c"; // pw invullen
@@ -27,7 +27,7 @@ const char *wifi_password = "computer"; // pw invullen
 //~ const char *mqtt_password = "esp32";        // MQTT pw invullen
 //~ const char *clientID = "client_home";        // MQTT client ID invullen
 
-const char *mqtt_server = "192.168.137.103"; // IP van MQTT broker invullen 192.168.0.13
+const char *mqtt_server = "192.168.137.195"; // IP van MQTT broker invullen 192.168.0.13
 const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
 const char *mqtt_username = "esp32";         // MQTT username invullen
 const char *mqtt_password = "esp32";         // MQTT pw invullen
