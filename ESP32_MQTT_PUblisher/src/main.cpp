@@ -133,7 +133,7 @@ void loop()
   delay(1000);
   client.loop();
 
-  if (Rflag)
+  if (Rflag != 0)
   {
     debugSerial.print("Message arrived in main loop[");
     debugSerial.print(Topic);
