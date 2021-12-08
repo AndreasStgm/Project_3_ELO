@@ -1,11 +1,11 @@
 #include <Arduino.h>
 #include "uart_project.h"
 
-//#define DEBUG
+#define DEBUG
 
-byte readData[36];
+byte readData[68]; // maximaal aantal bytes dat het bericht kan bevatten
 
-RFIDPayload commsRead()
+UARTPayload commsRead()
 {
     while (commsSerial.available())
     {
@@ -17,7 +17,7 @@ RFIDPayload commsRead()
     return formatIntoStruct();
 }
 
-RFIDPayload formatIntoStruct()
+UARTPayload formatIntoStruct()
 {
 #ifdef DEBUG
     for (uint8_t i = 0; i < sizeof(readData); i++)
@@ -28,58 +28,66 @@ RFIDPayload formatIntoStruct()
     debugSerial.println();
 #endif
 
-    RFIDPayload formattedData;
+    UARTPayload formattedData;
+    uint8_t readDataLocation = 0;
 
-    formattedData.uidSize = readData[0]; //uidSize
-
-    for (uint8_t i = 0; i < formattedData.uidSize; i++) //uid
-        formattedData.uid[i] = readData[i + 1];
-
-    if (readData[formattedData.uidSize + 1] == BOOL_TRUE) //userIdentified
-        formattedData.userIdentified = true;
-    else
-        formattedData.userIdentified = false;
-
-    if (readData[formattedData.uidSize + 2] == STX) //name
+    if (readData[readDataLocation] == STX) //facial recognition name
     {
+        readDataLocation++;
         for (uint8_t i = 0; i < sizeof(readData); i++)
         {
-            if (readData[i + formattedData.uidSize + 3] == ETX)
+            if (readData[i] == ETX)
+            {
+                readDataLocation++;
                 break;
+            }
             else
-                formattedData.name[i] = readData[i + formattedData.uidSize + 3];
+            {
+                readDataLocation++;
+                formattedData.facialName[i] = readData[i + 1];
+            }
         }
     }
 
     return formattedData;
 }
 
-void commsSend(RFIDPayload *sendPayload)
+void commsSend(UARTPayload *sendPayload)
 {
     if (commsSerial.availableForWrite() > 0)
     {
         commsSerial.write(SOT); //start of transmission
 
-        commsSerial.write(sendPayload->uidSize); //uidSize
-
-        for (uint8_t i = 0; i < sendPayload->uidSize; i++) //uid
-            commsSerial.write(sendPayload->uid[i]);
-
-        if (sendPayload->userIdentified == true) //userIdentified
-            commsSerial.write(BOOL_TRUE);
-        else
-            commsSerial.write(BOOL_FALSE);
-
-        commsSerial.write(STX); //name
-        for (uint8_t i = 0; i < sizeof(sendPayload->name); i++)
+        commsSerial.write(STX); // facial recognition name
+        for (uint8_t i = 0; i < sizeof(sendPayload->facialName); i++)
         {
-            if (sendPayload->name != NULL)
-                commsSerial.write(sendPayload->name[i]);
+            if (sendPayload->facialName[i] != NULL)
+                commsSerial.write(sendPayload->facialName[i]);
             else
                 break;
         }
         commsSerial.write(ETX);
 
-        commsSerial.write(EOT);
+        commsSerial.write(STX); // audio recognition name
+        for (uint8_t i = 0; i < sizeof(sendPayload->audioName); i++)
+        {
+            if (sendPayload->audioName[i] != NULL)
+                commsSerial.write(sendPayload->audioName[i]);
+            else
+                break;
+        }
+        commsSerial.write(ETX);
+
+        commsSerial.write(STX); // rfid tag name
+        for (uint8_t i = 0; i < sizeof(sendPayload->rfidName); i++)
+        {
+            if (sendPayload->rfidName[i] != NULL)
+                commsSerial.write(sendPayload->rfidName[i]);
+            else
+                break;
+        }
+        commsSerial.write(ETX);
+
+        commsSerial.write(EOT); // end of transmission
     }
 }

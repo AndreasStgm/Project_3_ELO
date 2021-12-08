@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
 #define commsSerial Serial1 //the serial used for communicating between the two devices
-#define debugSerial Serial //used for debugging
+#define debugSerial Serial  //used for debugging
 
 #define SOT 0xFA //start of transmission
 #define STX 0xFB //start of text
@@ -10,6 +10,13 @@
 
 #define BOOL_TRUE 0xFF
 #define BOOL_FALSE 0xFE
+
+struct UARTPayload
+{
+    String faceName;
+    String audioName;
+    String rfidName;
+};
 
 struct RFIDPayload
 {
