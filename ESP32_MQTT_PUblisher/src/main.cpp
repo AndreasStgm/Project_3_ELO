@@ -125,21 +125,21 @@ void loop()
 
   client.loop();
 
-  if (Rflag)
-  {
-    debugSerial.print("Message arrived in main loop[");
-    debugSerial.print(Topic);
-    debugSerial.print("] ");
-    debugSerial.print("message length = ");
-    debugSerial.print(r_len);
-    //Serial.print(Payload);
-    for (int i = 0; i < r_len; i++)
-    {
-      debugSerial.print((char)buffer[i]);
-    }
-    debugSerial.println();
-    Rflag = false;
-  }
+  // if (Rflag)
+  // {
+  //   debugSerial.print("Message arrived in main loop[");
+  //   debugSerial.print(Topic);
+  //   debugSerial.print("] ");
+  //   debugSerial.print("message length = ");
+  //   debugSerial.print(r_len);
+  //   //Serial.print(Payload);
+  //   for (int i = 0; i < r_len; i++)
+  //   {
+  //     debugSerial.print((char)buffer[i]);
+  //   }
+  //   debugSerial.println();
+  //   Rflag = false;
+  // }
 
   /////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -147,27 +147,40 @@ void loop()
   {
     UARTPayload receivedPayload = commsRead();
 
-    String dataToSend = "";
-    dataToSend = dataToSend + "facial_recogn: " + receivedPayload.facialName + ", audio_recogn: " + receivedPayload.audioName + ", rfid_tag: " + receivedPayload.rfidName;
+    String sendDataAudio = "";
+    String sendDataRfid = "";
+    sendDataAudio = sendDataAudio + receivedPayload.audioName;
+    sendDataRfid = sendDataRfid + receivedPayload.rfidName;
 
     // data check
-    debugSerial.print("Data: ");
-    debugSerial.println(dataToSend);
+    debugSerial.printf("Data: audio_recogn: %s, rfid_tag: %s\n", sendDataAudio, sendDataRfid);
 
     // PUBLISH naar MQTT Broker (topic = Validation)
-    if (client.publish(RFIDtag_topic, String(dataToSend).c_str()))
+    if (client.publish(RFIDtag_topic, String(sendDataRfid).c_str()))
     {
       delay(100);
-      debugSerial.println("Data sent!");
+      debugSerial.println("RFID data sent!");
     }
-    //Als het niet lukt krijgen we volgende melding en probeert hij opnieuw
     else
     {
-      debugSerial.println("Data failed to send. Reconnecting to MQTT Broker and trying again\n");
+      debugSerial.println("RFID data failed to send. Reconnecting to MQTT Broker and trying again\n");
       client.connect(clientID, mqtt_username, mqtt_password);
       delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
-      client.publish(RFIDtag_topic, String(dataToSend).c_str());
+      client.publish(RFIDtag_topic, String(sendDataRfid).c_str());
     }
+    if (client.publish(VoiceRecognition_topic, String(sendDataAudio).c_str()))
+    {
+      delay(100);
+      debugSerial.println("Audio data sent!");
+    }
+    else
+    {
+      debugSerial.println("Audio data failed to send. Reconnecting to MQTT Broker and trying again\n");
+      client.connect(clientID, mqtt_username, mqtt_password);
+      delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
+      client.publish(VoiceRecognition_topic, String(sendDataAudio).c_str());
+    }
+    //Als het niet lukt krijgen we volgende melding en probeert hij opnieuw
 
     client.disconnect(); // disconnect MQTT broker
     delay(10);
