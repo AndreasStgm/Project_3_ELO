@@ -4,21 +4,21 @@
 #include "uart_project.h"
 
 // WiFi
-const char *ssid = "LAPTOP-Paco";            // wifi invullen
-const char *wifi_password = "Elpolloloco69"; // pw invullen
+// const char *ssid = "LAPTOP-Paco";            // wifi invullen
+// const char *wifi_password = "Elpolloloco69"; // pw invullen
 
-//~ const char *ssid = "ijmertnet";         // wifi invullen
-//~ const char *wifi_password = "computer"; // pw invullen
+const char *ssid = "ijmertnet";         // wifi invullen
+const char *wifi_password = "computer"; // pw invullen
 
 //const char *ssid = "Orange-6f9d5";         // wifi invullen
 //const char *wifi_password = "Qwcf933c"; // pw invullen
 
 // MQTT Ijmerts
-// const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen 192.168.0.13
-// const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
-// const char *mqtt_username = "ijmert";        // MQTT username invullen
-// const char *mqtt_password = "ijmert";        // MQTT pw invullen
-// const char *clientID = "client_home";        // MQTT client ID invullen
+const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen 192.168.0.13
+const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
+const char *mqtt_username = "ijmert";        // MQTT username invullen
+const char *mqtt_password = "ijmert";        // MQTT pw invullen
+const char *clientID = "client_home";        // MQTT client ID invullen
 
 // MQTT Mathias
 //~ const char *mqtt_server = "192.168.0.13"; // IP van MQTT broker invullen 192.168.0.13
@@ -27,11 +27,11 @@ const char *wifi_password = "Elpolloloco69"; // pw invullen
 //~ const char *mqtt_password = "esp32";        // MQTT pw invullen
 //~ const char *clientID = "client_home";        // MQTT client ID invullen
 
-const char *mqtt_server = "192.168.137.195"; // IP van MQTT broker invullen 192.168.0.13
-const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
-const char *mqtt_username = "esp32";         // MQTT username invullen
-const char *mqtt_password = "esp32";         // MQTT pw invullen
-const char *clientID = "client_home";        // MQTT client ID invullen
+// const char *mqtt_server = "192.168.137.195"; // IP van MQTT broker invullen 192.168.0.13
+// const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
+// const char *mqtt_username = "esp32";         // MQTT username invullen
+// const char *mqtt_password = "esp32";         // MQTT pw invullen
+// const char *clientID = "client_home";        // MQTT client ID invullen
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 const char *VoiceRecognition_topic = "VoiceRecognition"; // mathias sub_test
