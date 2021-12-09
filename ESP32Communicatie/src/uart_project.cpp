@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "uart_project.h"
 
-#define DEBUG
+//#define DEBUG
 
 byte readData[68]; // maximaal aantal bytes dat het bericht kan bevatten
 
@@ -29,26 +29,55 @@ UARTPayload formatIntoStruct()
 #endif
 
     UARTPayload formattedData;
+    strncpy(formattedData.facialName, "", 20);
+    strncpy(formattedData.audioName, "", 20);
+    strncpy(formattedData.rfidName, "", 20);
+
     uint8_t readDataLocation = 0;
 
     if (readData[readDataLocation] == STX) //facial recognition name
     {
-        readDataLocation++;
         for (uint8_t i = 0; i < sizeof(readData); i++)
         {
-            if (readData[i] == ETX)
-            {
-                readDataLocation++;
+            readDataLocation++;
+            if (readData[i + 1] == ETX)
                 break;
-            }
             else
-            {
-                readDataLocation++;
                 formattedData.facialName[i] = readData[i + 1];
-            }
         }
     }
+#ifdef DEBUG
+    debugSerial.println(readDataLocation);
+#endif
 
+    readDataLocation++;
+    if (readData[readDataLocation] == STX) //audio recognition name
+    {
+        for (uint8_t i = 0; i < sizeof(readData); i++)
+        {
+            readDataLocation++;
+            if (readData[readDataLocation] == ETX)
+                break;
+            else
+                formattedData.audioName[i] = readData[readDataLocation];
+        }
+    }
+#ifdef DEBUG
+    debugSerial.println(readDataLocation);
+#endif
+
+    readDataLocation++;
+    if (readData[readDataLocation] == STX) //rfid recognition name
+    {
+        for (uint8_t i = 0; i < sizeof(readData); i++)
+        {
+            readDataLocation++;
+            if (readData[readDataLocation] == ETX)
+                break;
+            else
+                formattedData.rfidName[i] = readData[readDataLocation];
+        }
+    }
     return formattedData;
 }
 
@@ -61,7 +90,7 @@ void commsSend(UARTPayload *sendPayload)
         commsSerial.write(STX); // facial recognition name
         for (uint8_t i = 0; i < sizeof(sendPayload->facialName); i++)
         {
-            if (sendPayload->facialName[i] != NULL)
+            if (sendPayload->facialName[i] != '\0')
                 commsSerial.write(sendPayload->facialName[i]);
             else
                 break;
@@ -71,7 +100,7 @@ void commsSend(UARTPayload *sendPayload)
         commsSerial.write(STX); // audio recognition name
         for (uint8_t i = 0; i < sizeof(sendPayload->audioName); i++)
         {
-            if (sendPayload->audioName[i] != NULL)
+            if (sendPayload->audioName[i] != '\0')
                 commsSerial.write(sendPayload->audioName[i]);
             else
                 break;
@@ -81,7 +110,7 @@ void commsSend(UARTPayload *sendPayload)
         commsSerial.write(STX); // rfid tag name
         for (uint8_t i = 0; i < sizeof(sendPayload->rfidName); i++)
         {
-            if (sendPayload->rfidName[i] != NULL)
+            if (sendPayload->rfidName[i] != '\0')
                 commsSerial.write(sendPayload->rfidName[i]);
             else
                 break;
