@@ -92,10 +92,6 @@ void connect_MQTT()
   if (client.connect(clientID, mqtt_username, mqtt_password))
   {
     debugSerial.println("Connected to MQTT Broker!");
-    /////////////////////////////////////////////////////////////////////////////////////////////////
-    //boolean succes = client.subscribe(FacialRecognition_topic);    // mathias subtest
-    // client.setCallback(callback);
-    /////////////////////////////////////////////////////////////////////////////////////////////////
   }
   else
   {
@@ -107,12 +103,6 @@ void connect_MQTT()
 
 void setup()
 {
-  // for (int i = 0; i < 4; i++)
-  //   receivedPayload.uid[i] = 69;
-  // receivedPayload.uidSize = 4;
-  // strncpy(receivedPayload.name, "Gamer", 20);
-  // receivedPayload.userIdentified = true;
-
   debugSerial.begin(9600);
   commsSerial.begin(115200);
 
@@ -155,13 +145,10 @@ void loop()
 
   if (commsSerial.available() > 0)
   {
-    RFIDPayload receivedPayload = commsRead();
+    UARTPayload receivedPayload = commsRead();
 
     String dataToSend = "";
-    dataToSend = dataToSend + receivedPayload.uidSize + " ";
-    for (uint8_t i = 0; i < receivedPayload.uidSize; i++)
-      dataToSend = dataToSend + receivedPayload.uid[i] + " ";
-    dataToSend = dataToSend + receivedPayload.userIdentified + " " + receivedPayload.name;
+    dataToSend = dataToSend + "facial_recogn: " + receivedPayload.facialName + ", audio_recogn: " + receivedPayload.audioName + ", rfid_tag: " + receivedPayload.rfidName;
 
     // data check
     debugSerial.print("Data: ");
