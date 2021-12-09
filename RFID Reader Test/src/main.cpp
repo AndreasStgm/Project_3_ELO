@@ -6,9 +6,9 @@
 #define RFID_RST 9
 #define RFID_SS 10
 
-#define DEBUG // Enable to have debug info
+//#define DEBUG // Enable to have debug info
 
-RFIDPayload userPayload;
+UARTPayload userPayload;
 
 MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
 
@@ -19,8 +19,8 @@ byte Andreas[4] = {163, 245, 191, 50};
 // //-----Function Declaration-----
 
 void printDec(byte *buffer, byte bufferSize);
-void UserCorrect(byte *userUid, byte userUidSize, String userName);
-void UserIncorrect(byte *userUid, byte userUidSize);
+void UserCorrect(String userName);
+void UserIncorrect();
 
 //----------
 void setup()
@@ -40,20 +40,20 @@ void loop()
     if (!RfidReader.PICC_ReadCardSerial()) // Select one of the cards
         return;
 
-    if (*RfidReader.uid.uidByte == *Steven)
+    if (*RfidReader.uid.uidByte == *Steven) // Check voor steven tag
     {
 #ifdef DEBUG
         printDec(RfidReader.uid.uidByte, RfidReader.uid.size);
 #endif
-        UserCorrect(RfidReader.uid.uidByte, RfidReader.uid.size, "Steven");
+        UserCorrect("Steven");
         commsSend(&userPayload);
     }
-    else if (*RfidReader.uid.uidByte == *Andreas)
+    else if (*RfidReader.uid.uidByte == *Andreas) // Check voor andreas kaart
     {
 #ifdef DEBUG
         printDec(RfidReader.uid.uidByte, RfidReader.uid.size);
 #endif
-        UserCorrect(RfidReader.uid.uidByte, RfidReader.uid.size, "Andreas");
+        UserCorrect("Andreas");
         commsSend(&userPayload);
     }
     else
@@ -61,7 +61,7 @@ void loop()
 #ifdef DEBUG
         printDec(RfidReader.uid.uidByte, RfidReader.uid.size);
 #endif
-        UserIncorrect(RfidReader.uid.uidByte, RfidReader.uid.size);
+        UserIncorrect();
         commsSend(&userPayload);
     }
 
@@ -78,29 +78,17 @@ void printDec(byte *buffer, byte bufferSize)
     }
     Serial.println();
 }
-void UserCorrect(byte *userUid, byte userUidSize, String userName)
+void UserCorrect(String userName)
 {
-    for (byte i = 0; i < userUidSize; i++)
-    {
-        userPayload.uid[i] = userUid[i];
-    }
-    userPayload.uidSize = userUidSize;
-    strncpy(userPayload.name, userName.c_str(), 20);
-    userPayload.userIdentified = true;
+    strncpy(userPayload.rfidName, userName.c_str(), 20);
 #ifdef DEBUG
     Serial.print(userName);
     Serial.println(" identified.");
 #endif
 }
-void UserIncorrect(byte *userUid, byte userUidSize)
+void UserIncorrect()
 {
-    for (byte i = 0; i < userUidSize; i++)
-    {
-        userPayload.uid[i] = userUid[i];
-    }
-    userPayload.uidSize = userUidSize;
-    strncpy(userPayload.name, "Unidentified", 20);
-    userPayload.userIdentified = false;
+    strncpy(userPayload.rfidName, "Unidentified", 20);
 #ifdef DEBUG
     Serial.println("Unknown UID");
 #endif

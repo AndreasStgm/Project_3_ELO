@@ -66,15 +66,15 @@ void setup(void)
 
 void loop(void)
 {
-  testpayload = commsRead();
+  if (commsSerial.available() > 0)
+  {
+    testpayload = commsRead();
 
-  debugSerial.println((String)testpayload.facialName);
-
-  debugSerial.println((String)testpayload.audioName);
-
-  debugSerial.println((String)testpayload.rfidName);
-  debugSerial.flush();
-  delay(10000);
+    debugSerial.println((String)testpayload.facialName);
+    debugSerial.println((String)testpayload.audioName);
+    debugSerial.println((String)testpayload.rfidName);
+  }
+  delay(10);
   //   if (commsSerial.available() > 0)
   //   {
   //     debugSerial.print(commsSerial.available());
