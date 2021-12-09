@@ -39,7 +39,7 @@ const char *FacialRecognition_topic = "FacialRecognition";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 char *Topic;
-byte buffer[15];
+// byte buffer[15];
 boolean Rflag = false;
 int r_len;
 boolean succes;
@@ -53,6 +53,11 @@ PubSubClient client(mqtt_server, /*LISTENER PORT BROKER INVULLEN INGEVAL ANDERE*
 void callback(char *topic, byte *payload, unsigned int length)
 {
   //Payload=[];
+  UARTPayload receivedPayload;
+  strncpy(receivedPayload.facialName, "", 20);
+  strncpy(receivedPayload.audioName, "", 20);
+  strncpy(receivedPayload.rfidName, "", 20);
+
   Topic = topic;
   Rflag = true;   //will use in main loop
   r_len = length; //will use in main loop
@@ -60,10 +65,10 @@ void callback(char *topic, byte *payload, unsigned int length)
   debugSerial.println(length);
   for (int i = 0; i < length; i++)
   {
-    buffer[i] = payload[i];
-    debugSerial.print((char)payload[i]);
+    receivedPayload.facialName[i] = payload[i];
+    debugSerial.print(receivedPayload.facialName[i]);
   }
-  Serial.print("For passed");
+  commsSend(&receivedPayload);
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////
 
