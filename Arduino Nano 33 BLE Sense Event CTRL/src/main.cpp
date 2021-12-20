@@ -5,14 +5,19 @@
 #include <SpeechRec.h>
 #include <Scheduler.h>
 #include <SPI.h>
+#include <MFRC522.h>
 
+#define RFID_RST 9
+#define RFID_SS 10
 
 //-----Function Declaration-----
+void UserCorrect(String userName);
+void UserIncorrect();
 String RFID_Read();
 String RX_Handler();
 SchedulerTask voice_recognition();
 String stemherkenning();
-void setupComm();
+void setupReaderAndComms();
 
 //-----Variable Declaration-----
 String naam_received = "";
@@ -22,19 +27,27 @@ String rfid_naam = "";
 String stem_naam = "";
 const char *names[3] = {"Steven", "Andreas", "noname"}; //all users are stored in this array. Last value is dummy value that returns when std::find() does not find occurence of string.
 
+//-----Instance Declaration-----
+MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
+UARTPayload recognitionPayload;
+
+// //-----RFID Users-----
+byte Steven[4] = {167, 154, 66, 51};
+byte Andreas[4] = {163, 245, 191, 50};
+
 void setup()
 {
-    setupComm();
+    setupReaderAndComms();
+
     pinMode(LED_RED, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
     pinMode(LED_BLUE, OUTPUT);
 }
 
-
 void loop()
 {
     // naam_received = RX_Handler();
-    naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt) 
+    naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
     if (naam_received == "unknown")
     {
         String speech_Name = stemherkenning();
@@ -69,7 +82,7 @@ void loop()
             else
             {
                 // send close
-                Serial.print("close");         
+                Serial.print("close");
             }
         }
     }
@@ -80,20 +93,56 @@ void loop()
 
 String RX_Handler()
 {
-    if (Serial1.available())
+    if (commsSerial.available() > 0)
     {
-        if (Serial1.readString() == "STX")
-            return (Serial1.readStringUntil(ETX));
+        recognitionPayload = commsRead();
     }
-    return "Andreas";
+    return (String)recognitionPayload.facialName;
+}
+
+void UserCorrect(String userName)
+{
+    strncpy(recognitionPayload.rfidName, userName.c_str(), 20);
+#ifdef DEBUG
+    Serial.print(userName);
+    Serial.println(" identified.");
+#endif
+}
+
+void UserIncorrect()
+{
+    strncpy(recognitionPayload.rfidName, "Unidentified", 20);
+#ifdef DEBUG
+    Serial.println("Unknown UID");
+#endif
 }
 
 String RFID_Read()
 {
     //Get RFID tag and wait maybe? return "unkown" if none was read.
 
-    String naam = "unknown";
-    return naam;
+    if (!RfidReader.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
+        return;
+    if (!RfidReader.PICC_ReadCardSerial()) // Select one of the cards
+        return;
+
+    if (*RfidReader.uid.uidByte == *Steven) // Check voor steven tag
+    {
+        UserCorrect("Steven");
+        commsSend(&recognitionPayload);
+    }
+    else if (*RfidReader.uid.uidByte == *Andreas) // Check voor andreas kaart
+    {
+        UserCorrect("Andreas");
+        commsSend(&recognitionPayload);
+    }
+    else
+    {
+        UserIncorrect();
+        commsSend(&recognitionPayload);
+    }
+
+    delay(1000); //change value if you want to read cards faster
 }
 
 String stemherkenning()
@@ -105,11 +154,12 @@ String stemherkenning()
     return naam;
 }
 
-void setupComm()
+void setupReaderAndComms()
 {
-    Serial.begin(115200); // Init serial comm
-
-    SPI.begin();           // Init SPI for card reader
+#ifdef DEBUG
+    debugSerial.begin(9600); // Initialize serial communications with the PC
+#endif
+    commsSerial.begin(115200); // Init serial comm
+    SPI.begin();               // Init SPI for card reader
+    RfidReader.PCD_Init();     // Init MFRC522 card
 }
-
-
