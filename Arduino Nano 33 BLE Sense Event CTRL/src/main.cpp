@@ -13,7 +13,7 @@
 //-----Function Declaration-----
 void UserCorrect(String userName);
 void UserIncorrect();
-String RFID_Read();
+void RFID_Read();
 String RX_Handler();
 SchedulerTask voice_recognition();
 String stemherkenning();
@@ -50,8 +50,14 @@ void loop()
     // naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
     if (naam_received == "unknown")
     {
+        Scheduler.startLoop(RFID_Read);
+        strncpy(recognitionPayload.rfidName, "kaka", 20);
+        while (recognitionPayload.rfidName == "kaka")
+        {
+        }
+        debugSerial.println(recognitionPayload.rfidName);
         String speech_Name = stemherkenning();
-        String RFID_Name = RFID_Read();
+        String RFID_Name = (String)recognitionPayload.rfidName;
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
         {
             // send open
@@ -85,7 +91,8 @@ void loop()
         }
         else
         {
-            String RFID_Name = RFID_Read();
+            String RFID_Name = "kaka";
+            // String RFID_Name = RFID_Read();
             if (RFID_Name != "unknown" && RFID_Name == naam_received)
             {
                 // send open
@@ -137,7 +144,7 @@ void UserIncorrect()
 #endif
 }
 
-String RFID_Read()
+void RFID_Read()
 {
     //Get RFID tag and wait maybe? return "unkown" if none was read.
 
@@ -149,17 +156,17 @@ String RFID_Read()
     if (*RfidReader.uid.uidByte == *Steven) // Check voor steven tag
     {
         UserCorrect("Steven");
-        commsSend(&recognitionPayload);
+        // commsSend(&recognitionPayload);
     }
     else if (*RfidReader.uid.uidByte == *Andreas) // Check voor andreas kaart
     {
         UserCorrect("Andreas");
-        commsSend(&recognitionPayload);
+        // commsSend(&recognitionPayload);
     }
     else
     {
         UserIncorrect();
-        commsSend(&recognitionPayload);
+        // commsSend(&recognitionPayload);
     }
 
     delay(1000); //change value if you want to read cards faster
@@ -167,11 +174,59 @@ String RFID_Read()
 
 String stemherkenning()
 {
-    //get a name (wait a certain amount of time for a name to be read.)
-    //return name if name is read, return something ("unknown?") if not.
-
-    String naam = "Andreas";
-    return naam;
+    digitalWrite(LED_BLUE, LOW);
+    int i = 0;
+    while (!stem_herkent || i < 17)
+    {
+        bool m = microphone_inference_record();
+        if (!m)
+        {
+            ei_printf("ERR: Failed to record audio...\n");
+            return;
+        }
+        signal_t signal;
+        signal.total_length = EI_CLASSIFIER_SLICE_SIZE;
+        signal.get_data = &microphone_audio_signal_get_data;
+        ei_impulse_result_t result = {0};
+        EI_IMPULSE_ERROR r = run_classifier_continuous(&signal, &result, debug_nn);
+        if (r != EI_IMPULSE_OK)
+        {
+            ei_printf("ERR: Failed to run classifier (%d)\n", r);
+            return;
+        }
+        if (++print_results >= (EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW))
+        {
+            for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)
+            {
+                if (result.classification[ix].value > 0.7)
+                {
+                    if (ix == 0)
+                        return "Andreas";
+                    else if (ix == 2)
+                        return "Steven";
+                    stem_herkent = true;
+                }
+            }
+#if EI_CLASSIFIER_HAS_ANOMALY == 1
+            ei_printf("    anomaly score: %.3f\n", result.anomaly);
+#endif
+            print_results = 0;
+        }
+        if (i == 16)
+        {
+            for (int k = 0; i < 5; i++)
+            {
+                digitalWrite(LED_RED, LOW);
+                delay(500);
+                digitalWrite(LED_RED, HIGH);
+                delay(500);
+            }
+            return "unknown";
+        }
+        else
+            i++;
+    }
+    digitalWrite(LED_BLUE, HIGH);
 }
 
 void setupReaderAndComms()
