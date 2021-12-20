@@ -46,8 +46,8 @@ void setup()
 
 void loop()
 {
-    // naam_received = RX_Handler();
-    naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
+    naam_received = RX_Handler();
+    // naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
     if (naam_received == "unknown")
     {
         String speech_Name = stemherkenning();
