@@ -2,17 +2,23 @@
 #include <nrf52840.h>
 #include <nrf52840_peripherals.h>
 #include <uart_project.h>
-#include <SpeechRec.h>
 #include <Scheduler.h>
 #include <SPI.h>
-
-
+#include <Names_inferencing.h>
+#include <PDM.h>
 //-----Function Declaration-----
 String RFID_Read();
 String RX_Handler();
 SchedulerTask voice_recognition();
 String stemherkenning();
 void setupComm();
+void ei_printf(const char *format, ...);
+static void pdm_data_ready_inference_callback(void);
+static bool microphone_inference_start(uint32_t n_samples);
+static bool microphone_inference_record(void);
+static int microphone_audio_signal_get_data(size_t offset, size_t length, float *out_ptr);
+static void microphone_inference_end(void);
+void setupSpeech();
 
 //-----Variable Declaration-----
 String naam_received = "";
@@ -21,20 +27,34 @@ bool tag_herkent = false;
 String rfid_naam = "";
 String stem_naam = "";
 const char *names[3] = {"Steven", "Andreas", "noname"}; //all users are stored in this array. Last value is dummy value that returns when std::find() does not find occurence of string.
+typedef struct
+{
+    signed short *buffers[2];
+    unsigned char buf_select;
+    unsigned char buf_ready;
+    unsigned int buf_count;
+    unsigned int n_samples;
+} inference_t;
+
+static inference_t inference;
+static bool record_ready = false;
+static signed short *sampleBuffer;
+static bool debug_nn = false; // Set this to true to see e.g. features generated from the raw signal
+static int print_results = -(EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW);
 
 void setup()
 {
+    setupSpeech();
     setupComm();
     pinMode(LED_RED, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
     pinMode(LED_BLUE, OUTPUT);
 }
 
-
 void loop()
 {
     // naam_received = RX_Handler();
-    naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt) 
+    naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
     if (naam_received == "unknown")
     {
         String speech_Name = stemherkenning();
@@ -69,7 +89,7 @@ void loop()
             else
             {
                 // send close
-                Serial.print("close");         
+                Serial.print("close");
             }
         }
     }
@@ -98,18 +118,198 @@ String RFID_Read()
 
 String stemherkenning()
 {
-    //get a name (wait a certain amount of time for a name to be read.)
-    //return name if name is read, return something ("unknown?") if not.
-
-    String naam = "Andreas";
-    return naam;
+    digitalWrite(LED_BLUE, LOW);
+    int i = 0;
+    while (!stem_herkent || i < 17)
+    {
+        bool m = microphone_inference_record();
+        if (!m)
+        {
+            ei_printf("ERR: Failed to record audio...\n");
+            break;
+        }
+        signal_t signal;
+        signal.total_length = EI_CLASSIFIER_SLICE_SIZE;
+        signal.get_data = &microphone_audio_signal_get_data;
+        ei_impulse_result_t result = {0};
+        EI_IMPULSE_ERROR r = run_classifier_continuous(&signal, &result, debug_nn);
+        if (r != EI_IMPULSE_OK)
+        {
+            ei_printf("ERR: Failed to run classifier (%d)\n", r);
+            break;
+        }
+        if (++print_results >= (EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW))
+        {
+            for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)
+            {
+                if (result.classification[ix].value > 0.7)
+                {
+                    if (ix == 0)
+                        return "Andreas";
+                    else if (ix == 2)
+                        return "Steven";
+                    stem_herkent = true;
+                }
+            }
+#if EI_CLASSIFIER_HAS_ANOMALY == 1
+            ei_printf("    anomaly score: %.3f\n", result.anomaly);
+#endif
+            print_results = 0;
+        }
+        if (i == 16)
+        {
+            for (int k = 0; k < 5; k++)
+            {
+                digitalWrite(LED_RED, LOW);
+                delay(500);
+                digitalWrite(LED_RED, HIGH);
+                delay(500);
+            }
+            return "unknown";
+        }
+        else
+            i++;
+    }
+    digitalWrite(LED_BLUE, HIGH);
 }
 
 void setupComm()
 {
     Serial.begin(115200); // Init serial comm
 
-    SPI.begin();           // Init SPI for card reader
+    SPI.begin(); // Init SPI for card reader
 }
 
+void ei_printf(const char *format, ...)
+{
+    static char print_buf[1024] = {0};
 
+    va_list args;
+    va_start(args, format);
+    int r = vsnprintf(print_buf, sizeof(print_buf), format, args);
+    va_end(args);
+
+    if (r > 0)
+    {
+        Serial.write(print_buf);
+    }
+}
+static void pdm_data_ready_inference_callback(void)
+{
+    int bytesAvailable = PDM.available();
+
+    // read into the sample buffer
+    int bytesRead = PDM.read((char *)&sampleBuffer[0], bytesAvailable);
+
+    if (record_ready == true)
+    {
+        for (int i = 0; i < bytesRead >> 1; i++)
+        {
+            inference.buffers[inference.buf_select][inference.buf_count++] = sampleBuffer[i];
+
+            if (inference.buf_count >= inference.n_samples)
+            {
+                inference.buf_select ^= 1;
+                inference.buf_count = 0;
+                inference.buf_ready = 1;
+            }
+        }
+    }
+}
+static bool microphone_inference_start(uint32_t n_samples)
+{
+    inference.buffers[0] = (signed short *)malloc(n_samples * sizeof(signed short));
+
+    if (inference.buffers[0] == NULL)
+    {
+        return false;
+    }
+
+    inference.buffers[1] = (signed short *)malloc(n_samples * sizeof(signed short));
+
+    if (inference.buffers[1] == NULL)
+    {
+        free(inference.buffers[0]);
+        return false;
+    }
+
+    sampleBuffer = (signed short *)malloc((n_samples >> 1) * sizeof(signed short));
+
+    if (sampleBuffer == NULL)
+    {
+        free(inference.buffers[0]);
+        free(inference.buffers[1]);
+        return false;
+    }
+
+    inference.buf_select = 0;
+    inference.buf_count = 0;
+    inference.n_samples = n_samples;
+    inference.buf_ready = 0;
+
+    // configure the data receive callback
+    PDM.onReceive(&pdm_data_ready_inference_callback);
+
+    PDM.setBufferSize((n_samples >> 1) * sizeof(int16_t));
+
+    // initialize PDM with:
+    // - one channel (mono mode)
+    // - a 16 kHz sample rate
+    if (!PDM.begin(1, EI_CLASSIFIER_FREQUENCY))
+    {
+        ei_printf("Failed to start PDM!");
+    }
+
+    // set the gain, defaults to 20
+    PDM.setGain(127);
+
+    record_ready = true;
+
+    return true;
+}
+static bool microphone_inference_record(void)
+{
+    bool ret = true;
+    if (inference.buf_ready == 1)
+    {
+        ei_printf(
+            "Error sample buffer overrun. Decrease the number of slices per model window "
+            "(EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW)\n");
+        ret = false;
+    }
+
+    while (inference.buf_ready == 0)
+    {
+        delay(1);
+    }
+
+    inference.buf_ready = 0;
+
+    return ret;
+}
+static int microphone_audio_signal_get_data(size_t offset, size_t length, float *out_ptr)
+{
+    numpy::int16_to_float(&inference.buffers[inference.buf_select ^ 1][offset], out_ptr, length);
+
+    return 0;
+}
+static void microphone_inference_end(void)
+{
+    PDM.end();
+    free(inference.buffers[0]);
+    free(inference.buffers[1]);
+    free(sampleBuffer);
+}
+void setupSpeech()
+{
+    run_classifier_init();
+    if (microphone_inference_start(EI_CLASSIFIER_SLICE_SIZE) == false)
+    {
+        ei_printf("ERR: Failed to setup audio sampling\r\n");
+        return;
+    }
+}
+
+#if !defined(EI_CLASSIFIER_SENSOR) || EI_CLASSIFIER_SENSOR != EI_CLASSIFIER_SENSOR_MICROPHONE
+#error "Invalid model for current sensor."
+#endif

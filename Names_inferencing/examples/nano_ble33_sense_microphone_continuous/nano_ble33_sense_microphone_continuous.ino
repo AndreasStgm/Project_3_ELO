@@ -32,7 +32,7 @@
 
 /* Includes ---------------------------------------------------------------- */
 #include <PDM.h>
-#include <Names_inferencing.h>
+#include <C:\Users\verle\source\repos\Project_3_ELO\Names_inferencing\src\Names_inferencing.h>
 
 /** Audio buffers, pointers and selectors */
 typedef struct {
