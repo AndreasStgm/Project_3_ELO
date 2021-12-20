@@ -131,7 +131,7 @@ void UserCorrect(String userName)
 
 void UserIncorrect()
 {
-    strncpy(recognitionPayload.rfidName, "Unidentified", 20);
+    strncpy(recognitionPayload.rfidName, "unknown", 20);
 #ifdef DEBUG
     Serial.println("Unknown UID");
 #endif
