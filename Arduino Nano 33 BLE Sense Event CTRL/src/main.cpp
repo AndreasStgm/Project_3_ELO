@@ -55,12 +55,20 @@ void loop()
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
         {
             // send open
-            Serial.print("open");
+            commsSerial.write(SOT);
+            commsSerial.write(STX);
+            commsSerial.print(1);
+            commsSerial.write(ETX);
+            commsSerial.write(EOT);
         }
         else
         {
             // send close
-            Serial.print("close");
+            commsSerial.write(SOT);
+            commsSerial.write(STX);
+            commsSerial.print(0);
+            commsSerial.write(ETX);
+            commsSerial.write(EOT);
         }
     }
     else if (*std::find(std::begin(names), std::end(names), naam_received) != "noname")
@@ -69,7 +77,11 @@ void loop()
         if (speech_Name != "unknown" && speech_Name == naam_received)
         {
             // send open
-            Serial.print("open");
+            commsSerial.write(SOT);
+            commsSerial.write(STX);
+            commsSerial.print(1);
+            commsSerial.write(ETX);
+            commsSerial.write(EOT);
         }
         else
         {
@@ -77,12 +89,20 @@ void loop()
             if (RFID_Name != "unknown" && RFID_Name == naam_received)
             {
                 // send open
-                Serial.print("open");
+                commsSerial.write(SOT);
+                commsSerial.write(STX);
+                commsSerial.print(1);
+                commsSerial.write(ETX);
+                commsSerial.write(EOT);
             }
             else
             {
                 // send close
-                Serial.print("close");
+                commsSerial.write(SOT);
+                commsSerial.write(STX);
+                commsSerial.print(0);
+                commsSerial.write(ETX);
+                commsSerial.write(EOT);
             }
         }
     }

@@ -3,6 +3,9 @@
 #include <WiFi.h>         // Wifi enabler voor ESP32
 #include "uart_project.h"
 
+byte receivedData[5];
+String sendData = "";
+
 // WiFi
 // const char *ssid = "LAPTOP-Paco";            // wifi invullen
 // const char *wifi_password = "Elpolloloco69"; // pw invullen
@@ -15,7 +18,7 @@ const char *wifi_password = "computer"; // pw invullen
 
 // MQTT Ijmerts
 const char *mqtt_server = "192.168.137.134"; // IP van MQTT broker invullen 192.168.0.13
-const char *RFIDtag_topic = "RFIDtag";       // home/topic nog in te vullen
+const char *slot_topic = "slot";             // home/topic nog in te vullen
 const char *mqtt_username = "ijmert";        // MQTT username invullen
 const char *mqtt_password = "ijmert";        // MQTT pw invullen
 const char *clientID = "client_home";        // MQTT client ID invullen
@@ -34,7 +37,7 @@ const char *clientID = "client_home";        // MQTT client ID invullen
 // const char *clientID = "client_home";        // MQTT client ID invullen
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
-const char *VoiceRecognition_topic = "VoiceRecognition"; // mathias sub_test
+// const char *VoiceRecognition_topic = "VoiceRecognition"; // mathias sub_test
 const char *FacialRecognition_topic = "FacialRecognition";
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -150,18 +153,34 @@ void loop()
 
   if (commsSerial.available() > 0)
   {
-    UARTPayload receivedPayload = commsRead();
+    while (commsSerial.available() > 0)
+    {
+      if (commsSerial.read() == SOT)
+      {
+        commsSerial.readBytesUntil(EOT, receivedData, sizeof(receivedData));
+      }
+    }
 
-    String sendDataAudio = "";
-    String sendDataRfid = "";
-    sendDataAudio = sendDataAudio + receivedPayload.audioName;
-    sendDataRfid = sendDataRfid + receivedPayload.rfidName;
+    if (receivedData[0] == STX && receivedData[2] == ETX && receivedData[1])
+    {
+      sendData = "open";
+    }
+    else
+    {
+      sendData = "close";
+    }
+    // UARTPayload receivedPayload = commsRead();
+
+    // String sendDataAudio = "";
+    // String sendDataRfid = "";
+    // sendDataAudio = sendDataAudio + receivedPayload.audioName;
+    // sendDataRfid = sendDataRfid + receivedPayload.rfidName;
 
     // data check
-    debugSerial.printf("Data: audio_recogn: %s, rfid_tag: %s\n", sendDataAudio, sendDataRfid);
+    // debugSerial.printf("Data: audio_recogn: %s, rfid_tag: %s\n", sendDataAudio, sendDataRfid);
 
     // PUBLISH naar MQTT Broker (topic = Validation)
-    if (client.publish(RFIDtag_topic, String(sendDataRfid).c_str()))
+    if (client.publish(slot_topic, String(sendData).c_str()))
     {
       delay(100);
       debugSerial.println("RFID data sent!");
@@ -171,20 +190,20 @@ void loop()
       debugSerial.println("RFID data failed to send. Reconnecting to MQTT Broker and trying again\n");
       client.connect(clientID, mqtt_username, mqtt_password);
       delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
-      client.publish(RFIDtag_topic, String(sendDataRfid).c_str());
+      client.publish(slot_topic, String(sendData).c_str());
     }
-    if (client.publish(VoiceRecognition_topic, String(sendDataAudio).c_str()))
-    {
-      delay(100);
-      debugSerial.println("Audio data sent!");
-    }
-    else
-    {
-      debugSerial.println("Audio data failed to send. Reconnecting to MQTT Broker and trying again\n");
-      client.connect(clientID, mqtt_username, mqtt_password);
-      delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
-      client.publish(VoiceRecognition_topic, String(sendDataAudio).c_str());
-    }
+    // if (client.publish(VoiceRecognition_topic, String(sendDataAudio).c_str()))
+    // {
+    //   delay(100);
+    //   debugSerial.println("Audio data sent!");
+    // }
+    // else
+    // {
+    //   debugSerial.println("Audio data failed to send. Reconnecting to MQTT Broker and trying again\n");
+    //   client.connect(clientID, mqtt_username, mqtt_password);
+    //   delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
+    //   client.publish(VoiceRecognition_topic, String(sendDataAudio).c_str());
+    // }
     //Als het niet lukt krijgen we volgende melding en probeert hij opnieuw
 
     client.disconnect(); // disconnect MQTT broker
