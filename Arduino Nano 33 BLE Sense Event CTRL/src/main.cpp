@@ -60,32 +60,44 @@ byte Andreas[4] = {163, 245, 191, 50};
 void setup()
 {
     setupReaderAndComms();
-
+    setupSpeech();
     pinMode(LED_RED, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
     pinMode(LED_BLUE, OUTPUT);
+    digitalWrite(LED_RED, HIGH);
+    digitalWrite(LED_GREEN, HIGH);
+    digitalWrite(LED_BLUE, HIGH);
+
 }
 
 void loop()
 {
+    naam_received = "";
     naam_received = RX_Handler();
     // naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
     if (naam_received == "unknown")
     {
-        Scheduler.startLoop(RFID_Read);
         strncpy(recognitionPayload.rfidName, "kaka", 20);
+        Scheduler.startLoop(RFID_Read);
         while (recognitionPayload.rfidName == "kaka")
         {
         }
+        commsSerial.write(SOT);
+        commsSerial.write(STX);
+        commsSerial.print(0);
+        commsSerial.write(ETX);
+        commsSerial.write(EOT);
         debugSerial.println(recognitionPayload.rfidName);
-        String speech_Name = stemherkenning();
+        // String speech_Name = stemherkenning();
+        String speech_Name = "aids";
+
         String RFID_Name = (String)recognitionPayload.rfidName;
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
         {
             // send open
             commsSerial.write(SOT);
             commsSerial.write(STX);
-            commsSerial.print(1);
+            commsSerial.print(0);
             commsSerial.write(ETX);
             commsSerial.write(EOT);
         }
@@ -94,14 +106,16 @@ void loop()
             // send close
             commsSerial.write(SOT);
             commsSerial.write(STX);
-            commsSerial.print(0);
+            commsSerial.print(1);
             commsSerial.write(ETX);
             commsSerial.write(EOT);
         }
     }
     else if (*std::find(std::begin(names), std::end(names), naam_received) != "noname")
     {
-        String speech_Name = stemherkenning();
+        // String speech_Name = stemherkenning();
+        String speech_Name = "aids";
+
         if (speech_Name != "unknown" && speech_Name == naam_received)
         {
             // send open
@@ -120,7 +134,7 @@ void loop()
                 // send open
                 commsSerial.write(SOT);
                 commsSerial.write(STX);
-                commsSerial.print(1);
+                commsSerial.print(0);
                 commsSerial.write(ETX);
                 commsSerial.write(EOT);
             }
@@ -169,7 +183,8 @@ void UserIncorrect()
 void RFID_Read()
 {
     //Get RFID tag and wait maybe? return "unkown" if none was read.
-
+    UserCorrect("zever");
+    return;
     if (!RfidReader.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
         return;
     if (!RfidReader.PICC_ReadCardSerial()) // Select one of the cards
