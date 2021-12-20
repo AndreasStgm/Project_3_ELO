@@ -3,7 +3,7 @@
 #include <WiFi.h>         // Wifi enabler voor ESP32
 #include "uart_project.h"
 
-byte receivedData[5];
+byte receivedData[5] = {0, 0, 0, 0, 0};
 String sendData = "";
 
 // WiFi
@@ -161,7 +161,7 @@ void loop()
       }
     }
 
-    if (receivedData[0] == STX && receivedData[2] == ETX && receivedData[1])
+    if (receivedData[0] == STX && receivedData[2] == ETX && receivedData[1] == 1)
     {
       sendData = "open";
     }
@@ -169,6 +169,11 @@ void loop()
     {
       sendData = "close";
     }
+    receivedData[0] = 0;
+    receivedData[1] = 0;
+    receivedData[2] = 0;
+    receivedData[3] = 0;
+    receivedData[4] = 0;
     // UARTPayload receivedPayload = commsRead();
 
     // String sendDataAudio = "";
