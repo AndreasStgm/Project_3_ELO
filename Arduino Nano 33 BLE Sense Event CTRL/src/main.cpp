@@ -8,8 +8,6 @@
 #include <PDM.h>
 #include <MFRC522.h>
 
-
-
 #define RFID_RST 9
 #define RFID_SS 10
 
@@ -67,7 +65,6 @@ void setup()
     digitalWrite(LED_RED, HIGH);
     digitalWrite(LED_GREEN, HIGH);
     digitalWrite(LED_BLUE, HIGH);
-
 }
 
 void loop()
@@ -149,8 +146,7 @@ void loop()
             }
         }
     }
-    // String writenames = SOT + STX + stem_naam + ETX + STX + rfid_naam + ETX + EOT;
-    // Serial1.print(writenames);
+
     delay(1000);
 }
 
@@ -159,8 +155,10 @@ String RX_Handler()
     if (commsSerial.available() > 0)
     {
         recognitionPayload = commsRead();
+        return (String)recognitionPayload.facialName;
     }
-    return (String)recognitionPayload.facialName;
+    else
+        return "kaka";
 }
 
 void UserCorrect(String userName)
