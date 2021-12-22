@@ -160,14 +160,20 @@ void loop()
         commsSerial.readBytesUntil(EOT, receivedData, sizeof(receivedData));
       }
     }
+    for (uint8_t i = 0; i < sizeof(receivedData); i++)
+    {
+      debugSerial.println(receivedData[i]);
+    }
 
-    if (receivedData[0] == STX && receivedData[2] == ETX && receivedData[1] == 1)
+    if (receivedData[0] == STX && receivedData[2] == ETX && receivedData[1] == 49)
     {
       sendData = "open";
+      debugSerial.println("Received: open");
     }
     else
     {
       sendData = "close";
+      debugSerial.println("Received: closed");
     }
     receivedData[0] = 0;
     receivedData[1] = 0;
