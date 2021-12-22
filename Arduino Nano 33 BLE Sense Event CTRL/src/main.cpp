@@ -24,7 +24,7 @@ static bool microphone_inference_record(void);
 static int microphone_audio_signal_get_data(size_t offset, size_t length, float *out_ptr);
 static void microphone_inference_end(void);
 void setupSpeech();
-
+void RFID_Read_loop();
 //-----Variable Declaration-----
 String naam_received = "";
 bool stem_herkent = false;
@@ -70,8 +70,7 @@ void setup()
 
 void loop()
 {
-    //naam_received = RX_Handler();
-    naam_received = "Steven";
+    naam_received = RX_Handler();
     debugSerial.println("naam_received: ");
     debugSerial.println(naam_received);
 
@@ -198,10 +197,10 @@ void UserIncorrect()
 
 void RFID_Read_loop()
 {
-    for (int i = 0; i<20; i++)
+    for (int i = 0; i < 20; i++)
     {
         RFID_Read();
-    }    
+    }
 }
 
 void RFID_Read()
