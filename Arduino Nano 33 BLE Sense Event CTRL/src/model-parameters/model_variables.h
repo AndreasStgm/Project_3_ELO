@@ -27,19 +27,21 @@
 
 const char* ei_classifier_inferencing_categories[] = { "Andreas_Name", "Noise", "Steven_Name" };
 
-uint8_t ei_dsp_config_7_axes[] = { 0 };
-const uint32_t ei_dsp_config_7_axes_size = 1;
-ei_dsp_config_mfe_t ei_dsp_config_7 = {
-    3,
+uint8_t ei_dsp_config_14_axes[] = { 0 };
+const uint32_t ei_dsp_config_14_axes_size = 1;
+ei_dsp_config_mfcc_t ei_dsp_config_14 = {
+    2,
     1,
+    13,
     0.05f,
     0.05f,
     40,
     256,
+    101,
     300,
     0,
-    101,
-    -72
+    0.98f,
+    1
 };
 
 #endif // _EI_CLASSIFIER_MODEL_METADATA_H_

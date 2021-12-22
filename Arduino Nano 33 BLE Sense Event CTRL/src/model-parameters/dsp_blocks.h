@@ -29,12 +29,12 @@
 
 const size_t ei_dsp_blocks_size = 1;
 ei_model_dsp_t ei_dsp_blocks[ei_dsp_blocks_size] = {
-    { // DSP block 7
-        1600,
-        &extract_mfe_features,
-        (void*)&ei_dsp_config_7,
-        ei_dsp_config_7_axes,
-        ei_dsp_config_7_axes_size
+    { // DSP block 14
+        260,
+        &extract_mfcc_features,
+        (void*)&ei_dsp_config_14,
+        ei_dsp_config_14_axes,
+        ei_dsp_config_14_axes_size
     }
 };
 

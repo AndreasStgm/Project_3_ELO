@@ -8,11 +8,9 @@
 #include <PDM.h>
 #include <MFRC522.h>
 
-
-
 #define RFID_RST 9
 #define RFID_SS 10
-
+#define EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW 3
 //-----Function Declaration-----
 void RFID_Read();
 String RX_Handler();
@@ -67,12 +65,13 @@ void setup()
     digitalWrite(LED_RED, HIGH);
     digitalWrite(LED_GREEN, HIGH);
     digitalWrite(LED_BLUE, HIGH);
-    Scheduler.startLoop(RFID_Read);
+    // Scheduler.startLoop(RFID_Read);
 }
 
 void loop()
 {
-    naam_received = RX_Handler();
+    //naam_received = RX_Handler();
+    naam_received = "Steven";
     debugSerial.println("naam_received: ");
     debugSerial.println(naam_received);
 
@@ -89,7 +88,6 @@ void loop()
         // debugSerial.println(recognitionPayload.rfidName);
         String speech_Name = stemherkenning();
         debugSerial.println("speech shit");
-
         debugSerial.println(speech_Name);
         // String speech_Name = "aids";
         strncpy(recognitionPayload.rfidName, "", 20);
@@ -97,7 +95,7 @@ void loop()
         yield();
         delay(5000);
         digitalWrite(LED_GREEN, HIGH);
-        
+
         String RFID_Name = (String)recognitionPayload.rfidName;
         debugSerial.println(RFID_Name);
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
@@ -231,16 +229,12 @@ void RFID_Read()
 
 String stemherkenning()
 {
+    stem_herkent = false;
     digitalWrite(LED_BLUE, LOW);
     int i = 0;
     while (!stem_herkent || i < 100)
     {
-        // bool m = microphone_inference_record();
-        // if (!m)
-        // {
-        //     ei_printf("ERR: Failed to record audio...\n");
-        //     return "kaka";
-        // }
+        microphone_inference_record();
         signal_t signal;
         signal.total_length = EI_CLASSIFIER_SLICE_SIZE;
         signal.get_data = &microphone_audio_signal_get_data;
@@ -249,51 +243,54 @@ String stemherkenning()
         if (r != EI_IMPULSE_OK)
         {
             ei_printf("ERR: Failed to run classifier (%d)\n", r);
-            return "kaka";
+            break;
         }
+
         if (++print_results >= (EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW))
         {
+
             for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)
             {
+                /*ei_printf("    %s: %.5f\n", result.classification[ix].label,
+                          result.classification[ix].value);*/
                 if (result.classification[ix].value > 0.5)
                 {
                     if (ix == 0)
                     {
-                        digitalWrite(LED_BLUE, HIGH);
                         stem_herkent = true;
+                        digitalWrite(LED_BLUE, HIGH);
                         return "Andreas";
                     }
-                    else if (ix == 2)
+                    else if ((ix == 2))
                     {
                         stem_herkent = true;
                         digitalWrite(LED_BLUE, HIGH);
                         return "Steven";
                     }
+                    else
+                        i++;
+                }
+                else if (i == 99)
+                {
+                    digitalWrite(LED_BLUE, HIGH);
+                    for (int i = 0; i < 4; i++)
+                    {
+                        digitalWrite(LED_RED, LOW);
+                        delay(500);
+                        digitalWrite(LED_RED, HIGH);
+                        delay(500);
+                    }
+                    return "kaka";
+                }
+                else
+                {
+                    i++;
                 }
             }
-#if EI_CLASSIFIER_HAS_ANOMALY == 1
-            ei_printf("    anomaly score: %.3f\n", result.anomaly);
-#endif
             print_results = 0;
         }
-        if (i == 99)
-        {
-            digitalWrite(LED_BLUE, HIGH);
-            for (int k = 0; k < 5; k++)
-            {
-                digitalWrite(LED_RED, LOW);
-                delay(500);
-                digitalWrite(LED_RED, HIGH);
-                delay(500);
-            }
-            return "unknown";
-        }
-        else
-            i++;
     }
-    digitalWrite(LED_BLUE, HIGH);
 }
-
 void setupReaderAndComms()
 {
 #ifdef DEBUG
@@ -394,13 +391,13 @@ static bool microphone_inference_start(uint32_t n_samples)
 static bool microphone_inference_record(void)
 {
     bool ret = true;
-    if (inference.buf_ready == 1)
+    /*if (inference.buf_ready == 1)
     {
         ei_printf(
             "Error sample buffer overrun. Decrease the number of slices per model window "
             "(EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW)\n");
         ret = false;
-    }
+    }*/
 
     while (inference.buf_ready == 0)
     {
