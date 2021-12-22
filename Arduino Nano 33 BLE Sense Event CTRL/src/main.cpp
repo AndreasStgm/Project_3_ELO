@@ -75,10 +75,10 @@ void loop()
     naam_received = RX_Handler();
     debugSerial.println("naam_received: ");
     debugSerial.println(naam_received);
+
     // naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
     if (naam_received == "unknown")
     {
-        strncpy(recognitionPayload.rfidName, "", 20);
         // debugSerial.println("RFID name:");
         // debugSerial.println(recognitionPayload.rfidName);
         // commsSerial.write(SOT);
@@ -92,8 +92,11 @@ void loop()
 
         debugSerial.println(speech_Name);
         // String speech_Name = "aids";
+        strncpy(recognitionPayload.rfidName, "", 20);
+        digitalWrite(LED_GREEN, LOW);
         yield();
         delay(5000);
+        digitalWrite(LED_GREEN, HIGH);
         
         String RFID_Name = (String)recognitionPayload.rfidName;
         debugSerial.println(RFID_Name);
@@ -121,7 +124,7 @@ void loop()
     else if (std::find(std::begin(names), std::end(names), naam_received) != std::end(names))
     {
         String speech_Name = stemherkenning();
-
+        debugSerial.println(speech_Name);
         if (speech_Name != "unknown" && speech_Name == naam_received)
         {
             // send open
@@ -134,9 +137,14 @@ void loop()
         }
         else
         {
+            strncpy(recognitionPayload.rfidName, "", 20);
+            digitalWrite(LED_GREEN, LOW);
             yield();
             delay(5000);
+            digitalWrite(LED_GREEN, HIGH);
+
             String RFID_Name = (String)recognitionPayload.rfidName;
+            debugSerial.println(RFID_Name);
             if (RFID_Name != "unknown" && RFID_Name == naam_received)
             {
                 // send open
@@ -249,12 +257,12 @@ String stemherkenning()
             {
                 if (result.classification[ix].value > 0.7)
                 {
+                    digitalWrite(LED_BLUE, HIGH);
                     if (ix == 0)
                         return "Andreas";
                     else if (ix == 2)
                         return "Steven";
                     stem_herkent = true;
-                    digitalWrite(LED_BLUE, HIGH);
                 }
             }
 #if EI_CLASSIFIER_HAS_ANOMALY == 1
