@@ -257,12 +257,18 @@ String stemherkenning()
             {
                 if (result.classification[ix].value > 0.7)
                 {
-                    digitalWrite(LED_BLUE, HIGH);
                     if (ix == 0)
+                    {
+                        digitalWrite(LED_BLUE, HIGH);
+                        stem_herkent = true;
                         return "Andreas";
+                    }
                     else if (ix == 2)
+                    {
+                        stem_herkent = true;
+                        digitalWrite(LED_BLUE, HIGH);
                         return "Steven";
-                    stem_herkent = true;
+                    }
                 }
             }
 #if EI_CLASSIFIER_HAS_ANOMALY == 1
@@ -272,6 +278,7 @@ String stemherkenning()
         }
         if (i == 16)
         {
+            digitalWrite(LED_BLUE, HIGH);
             for (int k = 0; k < 5; k++)
             {
                 digitalWrite(LED_RED, LOW);
@@ -280,7 +287,6 @@ String stemherkenning()
                 delay(500);
             }
             return "unknown";
-            digitalWrite(LED_BLUE, HIGH);
         }
         else
             i++;
