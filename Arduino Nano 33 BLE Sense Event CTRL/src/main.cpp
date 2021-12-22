@@ -227,12 +227,12 @@ String stemherkenning()
     int i = 0;
     while (!stem_herkent || i < 17)
     {
-        bool m = microphone_inference_record();
-        if (!m)
-        {
-            ei_printf("ERR: Failed to record audio...\n");
-            return "kaka";
-        }
+        // bool m = microphone_inference_record();
+        // if (!m)
+        // {
+        //     ei_printf("ERR: Failed to record audio...\n");
+        //     return "kaka";
+        // }
         signal_t signal;
         signal.total_length = EI_CLASSIFIER_SLICE_SIZE;
         signal.get_data = &microphone_audio_signal_get_data;
@@ -254,6 +254,7 @@ String stemherkenning()
                     else if (ix == 2)
                         return "Steven";
                     stem_herkent = true;
+                    digitalWrite(LED_BLUE, HIGH);
                 }
             }
 #if EI_CLASSIFIER_HAS_ANOMALY == 1
@@ -271,6 +272,7 @@ String stemherkenning()
                 delay(500);
             }
             return "unknown";
+            digitalWrite(LED_BLUE, HIGH);
         }
         else
             i++;
