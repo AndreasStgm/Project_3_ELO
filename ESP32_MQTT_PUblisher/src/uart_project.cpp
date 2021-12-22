@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include "uart_project.h"
 
-//#define DEBUG
+#define DEBUG
 
 byte readData[68]; // maximaal aantal bytes dat het bericht kan bevatten
 

@@ -188,11 +188,11 @@ void loop()
     if (client.publish(slot_topic, String(sendData).c_str()))
     {
       delay(100);
-      debugSerial.println("RFID data sent!");
+      debugSerial.println("Slot data sent!");
     }
     else
     {
-      debugSerial.println("RFID data failed to send. Reconnecting to MQTT Broker and trying again\n");
+      debugSerial.println("Slot data failed to send. Reconnecting to MQTT Broker and trying again\n");
       client.connect(clientID, mqtt_username, mqtt_password);
       delay(10); // Zorgt ervoor dat client.publish en client.connect niet botsen
       client.publish(slot_topic, String(sendData).c_str());
