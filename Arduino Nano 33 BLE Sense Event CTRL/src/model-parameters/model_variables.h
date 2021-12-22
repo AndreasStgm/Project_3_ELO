@@ -35,12 +35,12 @@ ei_dsp_config_mfcc_t ei_dsp_config_3 = {
     13,
     0.02f,
     0.01f,
+    16,
     64,
-    32,
     101,
     0,
     0,
-    0.6f,
+    0.2f,
     1
 };
 
