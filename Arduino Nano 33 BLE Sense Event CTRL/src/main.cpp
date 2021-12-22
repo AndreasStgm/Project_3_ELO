@@ -120,8 +120,7 @@ void loop()
     }
     else if (std::find(std::begin(names), std::end(names), naam_received) != std::end(names))
     {
-        // String speech_Name = stemherkenning();
-        String speech_Name = "aids";
+        String speech_Name = stemherkenning();
 
         if (speech_Name != "unknown" && speech_Name == naam_received)
         {
@@ -135,8 +134,9 @@ void loop()
         }
         else
         {
-            String RFID_Name = "kaka";
-            // String RFID_Name = RFID_Read();
+            yield();
+            delay(5000);
+            String RFID_Name = (String)recognitionPayload.rfidName;
             if (RFID_Name != "unknown" && RFID_Name == naam_received)
             {
                 // send open
@@ -223,7 +223,6 @@ void RFID_Read()
 
 String stemherkenning()
 {
-    return "Steven";
     digitalWrite(LED_BLUE, LOW);
     int i = 0;
     while (!stem_herkent || i < 17)
