@@ -92,10 +92,8 @@ void loop()
         // String speech_Name = "aids";
         strncpy(recognitionPayload.rfidName, "", 20);
         digitalWrite(LED_GREEN, LOW);
-        yield();
-        delay(5000);
+        RFID_Read_loop();
         digitalWrite(LED_GREEN, HIGH);
-
         String RFID_Name = (String)recognitionPayload.rfidName;
         debugSerial.println(RFID_Name);
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
@@ -137,10 +135,8 @@ void loop()
         {
             strncpy(recognitionPayload.rfidName, "", 20);
             digitalWrite(LED_GREEN, LOW);
-            yield();
-            delay(5000);
+            RFID_Read_loop();
             digitalWrite(LED_GREEN, HIGH);
-
             String RFID_Name = (String)recognitionPayload.rfidName;
             debugSerial.println(RFID_Name);
             if (RFID_Name != "unknown" && RFID_Name == naam_received)
@@ -200,8 +196,17 @@ void UserIncorrect()
 #endif
 }
 
+void RFID_Read_loop()
+{
+    for (int i = 0; i<20; i++)
+    {
+        RFID_Read();
+    }    
+}
+
 void RFID_Read()
 {
+    delay(250);
     //Get RFID tag and wait maybe? return "unkown" if none was read.
     if (!RfidReader.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
         return;
@@ -223,8 +228,7 @@ void RFID_Read()
         UserIncorrect();
         // commsSend(&recognitionPayload);
     }
-    yield();
-    delay(500); //change value if you want to read cards faster
+    // delay(250); //change value if you want to read cards faster
 }
 
 String stemherkenning()
