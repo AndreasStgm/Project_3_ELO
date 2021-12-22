@@ -233,7 +233,7 @@ String stemherkenning()
 {
     digitalWrite(LED_BLUE, LOW);
     int i = 0;
-    while (!stem_herkent || i < 17)
+    while (!stem_herkent || i < 100)
     {
         // bool m = microphone_inference_record();
         // if (!m)
@@ -255,7 +255,7 @@ String stemherkenning()
         {
             for (size_t ix = 0; ix < EI_CLASSIFIER_LABEL_COUNT; ix++)
             {
-                if (result.classification[ix].value > 0.7)
+                if (result.classification[ix].value > 0.5)
                 {
                     if (ix == 0)
                     {
@@ -276,7 +276,7 @@ String stemherkenning()
 #endif
             print_results = 0;
         }
-        if (i == 16)
+        if (i == 99)
         {
             digitalWrite(LED_BLUE, HIGH);
             for (int k = 0; k < 5; k++)
