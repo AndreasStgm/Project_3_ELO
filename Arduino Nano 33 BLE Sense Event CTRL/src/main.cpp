@@ -8,8 +8,7 @@
 #include <PDM.h>
 #include <MFRC522.h>
 
-
-
+#define EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW 3
 #define RFID_RST 9
 #define RFID_SS 10
 
@@ -97,7 +96,7 @@ void loop()
         yield();
         delay(5000);
         digitalWrite(LED_GREEN, HIGH);
-        
+
         String RFID_Name = (String)recognitionPayload.rfidName;
         debugSerial.println(RFID_Name);
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
