@@ -8,9 +8,14 @@
 #include <PDM.h>
 #include <MFRC522.h>
 
-#define RFID_RST 9
+#define RFID_RST 2
 #define RFID_SS 10
 #define EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW 3
+#define led_wit 3
+#define led_blauw 4
+#define led_rood 5
+#define led_geel 6
+
 //-----Function Declaration-----
 void RFID_Read();
 String RX_Handler();
@@ -62,10 +67,13 @@ void setup()
     pinMode(LED_RED, OUTPUT);
     pinMode(LED_GREEN, OUTPUT);
     pinMode(LED_BLUE, OUTPUT);
+    pinMode(led_wit, OUTPUT);
+    pinMode(led_geel, OUTPUT);
+    pinMode(led_blauw, OUTPUT);
+    pinMode(led_rood, OUTPUT);
     digitalWrite(LED_RED, HIGH);
     digitalWrite(LED_GREEN, HIGH);
     digitalWrite(LED_BLUE, HIGH);
-    // Scheduler.startLoop(RFID_Read);
 }
 
 void loop()
@@ -90,9 +98,9 @@ void loop()
         debugSerial.println(speech_Name);
         // String speech_Name = "aids";
         strncpy(recognitionPayload.rfidName, "", 20);
-        digitalWrite(LED_GREEN, LOW);
+        digitalWrite(led_geel, 1);
         RFID_Read_loop();
-        digitalWrite(LED_GREEN, HIGH);
+        digitalWrite(led_geel, 0);
         String RFID_Name = (String)recognitionPayload.rfidName;
         debugSerial.println(RFID_Name);
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
@@ -133,9 +141,9 @@ void loop()
         else
         {
             strncpy(recognitionPayload.rfidName, "", 20);
-            digitalWrite(LED_GREEN, LOW);
+            digitalWrite(led_geel, 1);
             RFID_Read_loop();
-            digitalWrite(LED_GREEN, HIGH);
+            digitalWrite(led_geel, 0);
             String RFID_Name = (String)recognitionPayload.rfidName;
             debugSerial.println(RFID_Name);
             if (RFID_Name != "unknown" && RFID_Name == naam_received)
@@ -233,7 +241,7 @@ void RFID_Read()
 String stemherkenning()
 {
     stem_herkent = false;
-    digitalWrite(LED_BLUE, LOW);
+    digitalWrite(led_blauw, 1);
     int i = 0;
     while (!stem_herkent || i < 100)
     {
@@ -261,13 +269,13 @@ String stemherkenning()
                     if (ix == 0)
                     {
                         stem_herkent = true;
-                        digitalWrite(LED_BLUE, HIGH);
+                        digitalWrite(led_blauw, 0);
                         return "Andreas";
                     }
                     else if ((ix == 2))
                     {
                         stem_herkent = true;
-                        digitalWrite(LED_BLUE, HIGH);
+                        digitalWrite(led_blauw, 0);
                         return "Steven";
                     }
                     else
@@ -275,12 +283,12 @@ String stemherkenning()
                 }
                 else if (i == 99)
                 {
-                    digitalWrite(LED_BLUE, HIGH);
+                    digitalWrite(led_blauw, 0);
                     for (int i = 0; i < 4; i++)
                     {
-                        digitalWrite(LED_RED, LOW);
+                        digitalWrite(led_rood, 1);
                         delay(500);
-                        digitalWrite(LED_RED, HIGH);
+                        digitalWrite(led_rood, 0);
                         delay(500);
                     }
                     return "kaka";
