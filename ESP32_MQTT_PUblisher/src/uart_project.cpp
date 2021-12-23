@@ -3,7 +3,7 @@
 
 #define DEBUG
 
-byte readData[68]; // maximaal aantal bytes dat het bericht kan bevatten
+byte readData[68]; // maximum amount of that the uart message can consist of
 
 UARTPayload commsRead()
 {
