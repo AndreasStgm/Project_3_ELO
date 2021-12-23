@@ -8,7 +8,7 @@
 #include <PDM.h>
 #include <MFRC522.h>
 
-#define RFID_RST 9
+#define RFID_RST 2
 #define RFID_SS 10
 #define EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW 3
 //-----Function Declaration-----
@@ -52,7 +52,7 @@ MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
 UARTPayload recognitionPayload;
 
 // //-----RFID Users-----
-byte Steven[4] = {167, 154, 66, 51};
+byte Steven[4] = {0xB9, 0x34, 0xEF, 0xA3};
 byte Andreas[4] = {163, 245, 191, 50};
 
 void setup()
