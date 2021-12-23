@@ -79,6 +79,7 @@ void setup()
 void loop()
 {
     naam_received = RX_Handler();
+    // naam_received = "Steven";
     debugSerial.println("naam_received: ");
     debugSerial.println(naam_received);
 
