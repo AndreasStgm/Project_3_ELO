@@ -1,7 +1,7 @@
 #include <Arduino.h>
 
-#define commsSerial Serial //the serial used for communicating between the two devices
-#define debugSerial Serial //used for debugging
+#define commsSerial Serial1 //the serial used for communicating between the two devices
+#define debugSerial Serial  //used for debugging
 
 #define SOT 0xFF //start of transmission
 #define EOT 0xFE //end of transmission

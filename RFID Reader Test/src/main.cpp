@@ -3,7 +3,7 @@
 #include <MFRC522.h>
 #include "uart_project.h"
 
-#define RFID_RST 9
+#define RFID_RST 2
 #define RFID_SS 10
 
 #define DEBUG // Enable to have debug info
