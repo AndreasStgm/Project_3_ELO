@@ -8,7 +8,7 @@
 #include <PDM.h>
 #include <MFRC522.h>
 
-#define RFID_RST 2
+#define RFID_RST 9
 #define RFID_SS 10
 #define EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW 3
 #define led_wit 3
@@ -17,7 +17,7 @@
 #define led_geel 6
 
 //-----Function Declaration-----
-void RFID_Read();
+String RFID_Read();
 String RX_Handler();
 SchedulerTask voice_recognition();
 String stemherkenning();
@@ -29,9 +29,9 @@ static bool microphone_inference_record(void);
 static int microphone_audio_signal_get_data(size_t offset, size_t length, float *out_ptr);
 static void microphone_inference_end(void);
 void setupSpeech();
-void RFID_Read_loop();
+String RFID_Read_loop();
+void send_over_serial(int i);
 //-----Variable Declaration-----
-String naam_received = "";
 bool stem_herkent = false;
 bool tag_herkent = false;
 String rfid_naam = "";
@@ -54,12 +54,13 @@ static int print_results = -(EI_CLASSIFIER_SLICES_PER_MODEL_WINDOW);
 
 //-----Instance Declaration-----
 MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
-UARTPayload recognitionPayload;
+// UARTPayload recognitionPayload;
 
 // //-----RFID Users-----
 byte Steven[4] = {0xB9, 0x34, 0xEF, 0xA3};
-byte Andreas[4] = {163, 245, 191, 50};
+byte Andreas[4] = {0x3A, 0xF5, 0xE1, 0x3F};
 
+//setups all serial comms and leds
 void setup()
 {
     setupReaderAndComms();
@@ -76,167 +77,129 @@ void setup()
     digitalWrite(LED_BLUE, HIGH);
 }
 
+
+//Main program loop
+//Checks uart connection from ESP continuously (every time loop starts). This ESP will send Facial Recognition data whenever a face is detected on facial recognition module.
+//We have 3 possibilities:
+//1) Received name over UART is "unknown", then we check speech recognition and RFID. If these are equal: send 1 back to ESP, the ESP will then send 'open' on the 'slot' topic, which will open the lock
+//2) Received name is in names array variable. Next, speech recognition turns on. If the speech recognition name is equal to name_received, we open the lock (^^^^^^)
+//3) Received name is in names array variable. Next, speech recognition turns on. If the speech recognition name is not equal to name_received, we try RFID and if RFID name is equal to 
+//   name_received, we open the lock. If it is not equal, we close the lock.
 void loop()
 {
-    naam_received = RX_Handler();
-    // naam_received = "Steven";
+    String name_received = RX_Handler();
     debugSerial.println("naam_received: ");
-    debugSerial.println(naam_received);
+    debugSerial.println(name_received);
 
-    // naam_received = "Steven"; //dit is gewoon om te simuleren, gebruik lijn hierboven voor echt programma (kweet nie of die functie werkt)
-    if (naam_received == "unknown")
+    if (name_received == "unknown")
     {
-        // debugSerial.println("RFID name:");
-        // debugSerial.println(recognitionPayload.rfidName);
-        // commsSerial.write(SOT);
-        // commsSerial.write(STX);
-        // commsSerial.print(0);
-        // commsSerial.write(ETX);
-        // commsSerial.write(EOT);
-        // debugSerial.println(recognitionPayload.rfidName);
         String speech_Name = stemherkenning();
-        debugSerial.println("speech shit");
+        debugSerial.print("Speech Name: ");
         debugSerial.println(speech_Name);
-        // String speech_Name = "aids";
-        strncpy(recognitionPayload.rfidName, "", 20);
-        digitalWrite(led_geel, 1);
-        RFID_Read_loop();
-        digitalWrite(led_geel, 0);
-        String RFID_Name = (String)recognitionPayload.rfidName;
+        String RFID_Name = RFID_Read_loop();
         debugSerial.println(RFID_Name);
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
         {
-            // send open
             debugSerial.println("open unknown");
-            commsSerial.write(SOT);
-            commsSerial.write(STX);
-            commsSerial.print(1);
-            commsSerial.write(ETX);
-            commsSerial.write(EOT);
+            send_over_serial(1); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
         }
         else
         {
-            // send close
             debugSerial.println("close unknown");
-            commsSerial.write(SOT);
-            commsSerial.write(STX);
-            commsSerial.print(0);
-            commsSerial.write(ETX);
-            commsSerial.write(EOT);
+            send_over_serial(0); //sends 0 to ESP, which makes ESP send 'close' on mqtt to close lock.
         }
     }
-    else if (std::find(std::begin(names), std::end(names), naam_received) != std::end(names))
+    else if (std::find(std::begin(names), std::end(names), name_received) != std::end(names))
     {
         String speech_Name = stemherkenning();
         debugSerial.println(speech_Name);
-        if (speech_Name != "unknown" && speech_Name == naam_received)
+        if (speech_Name != "unknown" && speech_Name == name_received)
         {
-            // send open
             debugSerial.println("open SPEECH and FACIAL");
-            commsSerial.write(SOT);
-            commsSerial.write(STX);
-            commsSerial.print(1);
-            commsSerial.write(ETX);
-            commsSerial.write(EOT);
+            send_over_serial(1); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
         }
         else
         {
-            strncpy(recognitionPayload.rfidName, "", 20);
-            digitalWrite(led_geel, 1);
-            RFID_Read_loop();
-            digitalWrite(led_geel, 0);
-            String RFID_Name = (String)recognitionPayload.rfidName;
+            String RFID_Name = RFID_Read_loop();
             debugSerial.println(RFID_Name);
-            if (RFID_Name != "unknown" && RFID_Name == naam_received)
+            if (RFID_Name != "unknown" && RFID_Name == name_received)
             {
-                // send open
                 debugSerial.println("open RFID and FACIAL");
-                commsSerial.write(SOT);
-                commsSerial.write(STX);
-                commsSerial.print(1);
-                commsSerial.write(ETX);
-                commsSerial.write(EOT);
+                send_over_serial(1); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
             }
             else
             {
-                // send close
                 debugSerial.println("close RFID and FACIAL");
-                commsSerial.write(SOT);
-                commsSerial.write(STX);
-                commsSerial.print(0);
-                commsSerial.write(ETX);
-                commsSerial.write(EOT);
+                send_over_serial(0); //sends 0 to ESP, which makes ESP send 'close' on mqtt to close lock.
             }
         }
     }
-    // String writenames = SOT + STX + stem_naam + ETX + STX + rfid_naam + ETX + EOT;
-    // Serial1.print(writenames);
-    delay(1000);
+    delay(500);
 }
 
+//This function sends an integer over serial.
+void send_over_serial(char i)
+{
+    commsSerial.write(SOT);
+    commsSerial.write(STX);
+    commsSerial.print(i);
+    commsSerial.write(ETX);
+    commsSerial.write(EOT);
+}
+
+//This function reads facialName over serial from ESP and returns it. 
 String RX_Handler()
 {
     if (commsSerial.available() > 0)
     {
-        recognitionPayload = commsRead();
-        return (String)recognitionPayload.facialName;
+        return (String)commsRead().facialName;
     }
     else
     {
-        return "kaka";
+        return "None";
     }
 }
 
-void UserCorrect(String userName)
+//This function reads from RFID every .25 seconds. returns if a rfid name is detected.
+String RFID_Read_loop()
 {
-    strncpy(recognitionPayload.rfidName, userName.c_str(), 20);
-#ifdef DEBUG
-    Serial.print(userName);
-    Serial.println(" identified.");
-#endif
-}
-
-void UserIncorrect()
-{
-    strncpy(recognitionPayload.rfidName, "unknown", 20);
-#ifdef DEBUG
-    Serial.println("Unknown UID");
-#endif
-}
-
-void RFID_Read_loop()
-{
+    digitalWrite(led_geel, 1);
     for (int i = 0; i < 20; i++)
     {
-        RFID_Read();
+        String name = RFID_Read();
+        if (name != "unknown")
+        {
+            digitalWrite(led_geel, 0);
+            return name;
+        }
     }
+    digitalWrite(led_geel, 0);
+    return "unknown";
+
 }
 
-void RFID_Read()
+
+//returns name of rfid tag if rfid tag is detected.
+String RFID_Read()
 {
     delay(250);
-    //Get RFID tag and wait maybe? return "unkown" if none was read.
     if (!RfidReader.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
         return;
     if (!RfidReader.PICC_ReadCardSerial()) // Select one of the cards
         return;
 
-    if (*RfidReader.uid.uidByte == *Steven) // Check voor steven tag
+    if (*RfidReader.uid.uidByte == *Steven) // Check for steven tag
     {
-        UserCorrect("Steven");
-        // commsSend(&recognitionPayload);
+        return "Steven";
     }
-    else if (*RfidReader.uid.uidByte == *Andreas) // Check voor andreas kaart
+    else if (*RfidReader.uid.uidByte == *Andreas) // Check for andreas kaart
     {
-        UserCorrect("Andreas");
-        // commsSend(&recognitionPayload);
+        return "Andreas";
     }
     else
     {
-        UserIncorrect();
-        // commsSend(&recognitionPayload);
+        return "unknown";
     }
-    // delay(250); //change value if you want to read cards faster
 }
 
 String stemherkenning()
@@ -265,7 +228,7 @@ String stemherkenning()
             {
                 /*ei_printf("    %s: %.5f\n", result.classification[ix].label,
                           result.classification[ix].value);*/
-                if (result.classification[ix].value > 0.5)
+                if (result.classification[ix].value > 0.8)
                 {
                     if (ix == 0)
                     {
