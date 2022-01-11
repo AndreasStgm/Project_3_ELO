@@ -30,7 +30,7 @@ static int microphone_audio_signal_get_data(size_t offset, size_t length, float 
 static void microphone_inference_end(void);
 void setupSpeech();
 String RFID_Read_loop();
-void send_over_serial(int i);
+void send_over_serial(char i);
 //-----Variable Declaration-----
 bool stem_herkent = false;
 bool tag_herkent = false;
@@ -58,7 +58,7 @@ MFRC522 RfidReader(RFID_SS, RFID_RST); // Instance of the class
 
 // //-----RFID Users-----
 byte Steven[4] = {0xB9, 0x34, 0xEF, 0xA3};
-byte Andreas[4] = {0x3A, 0xF5, 0xE1, 0x3F};
+byte Andreas[4] = {0x9C, 0x6E, 0xF3, 0x8C};
 
 //setups all serial comms and leds
 void setup()
@@ -184,9 +184,9 @@ String RFID_Read()
 {
     delay(250);
     if (!RfidReader.PICC_IsNewCardPresent()) // Reset the loop if no new card present on the sensor/reader. This saves the entire process when idle.
-        return;
+        return "unknown";
     if (!RfidReader.PICC_ReadCardSerial()) // Select one of the cards
-        return;
+        return "unknown";
 
     if (*RfidReader.uid.uidByte == *Steven) // Check for steven tag
     {
@@ -207,7 +207,7 @@ String stemherkenning()
     stem_herkent = false;
     digitalWrite(led_blauw, 1);
     int i = 0;
-    while (!stem_herkent || i < 100)
+    while (!stem_herkent || i < 25)
     {
         microphone_inference_record();
         signal_t signal;
@@ -230,22 +230,28 @@ String stemherkenning()
                           result.classification[ix].value);*/
                 if (result.classification[ix].value > 0.8)
                 {
+                    debugSerial.println("result deemed high probability" + (String)ix);
                     if (ix == 0)
                     {
+                        debugSerial.println("result was Andreas");
                         stem_herkent = true;
                         digitalWrite(led_blauw, 0);
+                        print_results = 0;
                         return "Andreas";
                     }
                     else if ((ix == 2))
                     {
+                        debugSerial.println("result was Steven");
                         stem_herkent = true;
                         digitalWrite(led_blauw, 0);
+                        print_results = 0;
                         return "Steven";
                     }
                     else
+                        debugSerial.println("result was Noise");
                         i++;
                 }
-                else if (i == 99)
+                else if (i == 24)
                 {
                     digitalWrite(led_blauw, 0);
                     for (int i = 0; i < 4; i++)
@@ -255,7 +261,8 @@ String stemherkenning()
                         digitalWrite(led_rood, 0);
                         delay(500);
                     }
-                    return "kaka";
+                    print_results = 0;
+                    return "None";
                 }
                 else
                 {
