@@ -77,12 +77,12 @@ void loop()
         if (speech_Name != "unknown" && speech_Name == RFID_Name)
         {
             debugSerial.println("open unknown");
-            send_over_serial(1); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
+            send_over_serial('1'); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
         }
         else
         {
             debugSerial.println("close unknown");
-            send_over_serial(0); //sends 0 to ESP, which makes ESP send 'close' on mqtt to close lock.
+            send_over_serial('0'); //sends 0 to ESP, which makes ESP send 'close' on mqtt to close lock.
         }
     }
     else if (std::find(std::begin(names), std::end(names), name_received) != std::end(names))
@@ -92,7 +92,7 @@ void loop()
         if (speech_Name != "unknown" && speech_Name == name_received)
         {
             debugSerial.println("open SPEECH and FACIAL");
-            send_over_serial(1); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
+            send_over_serial('1'); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
         }
         else
         {
@@ -101,12 +101,12 @@ void loop()
             if (RFID_Name != "unknown" && RFID_Name == name_received)
             {
                 debugSerial.println("open RFID and FACIAL");
-                send_over_serial(1); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
+                send_over_serial('1'); //sends 1 to ESP, which makes ESP send 'open' on mqtt to open lock.
             }
             else
             {
                 debugSerial.println("close RFID and FACIAL");
-                send_over_serial(0); //sends 0 to ESP, which makes ESP send 'close' on mqtt to close lock.
+                send_over_serial('0'); //sends 0 to ESP, which makes ESP send 'close' on mqtt to close lock.
             }
         }
     }
