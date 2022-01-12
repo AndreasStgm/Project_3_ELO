@@ -10,8 +10,6 @@ De ESP32 zorgt voor de communicatie tussen de Arduino en de Raspberry Pi.
 
 De communicatie tussen deze twee onderdelen verloopt via UART.
 
-==================================================
-
 ## Gebruik Code
 Voor beide projecten moet men de PlatformIO IDE plugin in Visual Studio Code gebruiken.
 De .ini bestanden moeten normaal niet aangpast worden, de upload poort wordt automatisch correct gekozen.
