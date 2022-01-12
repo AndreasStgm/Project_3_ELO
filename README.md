@@ -15,11 +15,14 @@ De communicatie tussen deze twee onderdelen verloopt via UART.
 ## Gebruik Code
 Voor beide projecten moet men de PlatformIO IDE plugin in Visual Studio Code gebruiken.
 De .ini bestanden moeten normaal niet aangpast worden, de upload poort wordt automatisch correct gekozen.
-Indien dit wel nodig zou zijn, dan kan men simpelweg dit toevoegen:
-```upload_port = COM?```
-Als men in device manager, makkelijk toegankelijk via CTRL+X, kan men de correcte poort terugvinden van de device.
+Indien dit wel nodig zou zijn, dan kan men simpelweg dit toevoegen: ```upload_port = COM?``` Als men in device manager, makkelijk toegankelijk via CTRL+X, kan men de correcte poort terugvinden van de device.
 
 ### ESP32_MQTT_PUblisher
-In de publisher moet men enkel het gedeelte
+ESP32 code moet indien nodig de ssid, wifi_password, mqtt_server, mqtt_username, mqtt_password en de clientID.
+Als men wilt is het mogelijk om de topics aan te passen, de slot_topic en de FacialRecognition_topic.
+
+Voor de rest zou er niets aan de code moeten aangepast worden.
 
 ### Arduino Nano 33 BLE Sense Event CTRL
+Hier moet men normaal geen code aanpassen.
+Het kan soms zijn dat men met problemen komt bij het uploaden van het programma, men moet dan Arduino proberen een keer in de boatloader te zetten en dan terug in normale modus te gaan.
