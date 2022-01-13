@@ -27,14 +27,14 @@ Het kan soms zijn dat men met problemen komt bij het uploaden van het programma,
 ### Home Assistant OS Raspberry Pi
 Als men het systeem wilt laten draaien op een ander netwerk, moet men een paar commando's uitvoeren in de cli van Home Assistant OS:
 
-'nmcli device wifi rescan'
+```nmcli device wifi rescan```
 Dit commando gaat een Wi-Fi scan uitvoeren om nabije Wi-Fi netwerken te vinden.
 
-'nmcli device wifi'
+```nmcli device wifi```
 Dit commando gaat alle Wi-Fi netwerken die zijn gevonden weergeven.
 
-'nmcli device wifi connect "YOUR_SSID" password "YOUR_WIFI_PASSWORD"'
+```nmcli device wifi connect "YOUR_SSID" password "YOUR_WIFI_PASSWORD"```
 Met dit commando kan je dan connecteren met het gewenste Wi-Fi netwerk.
 
-'nmcli con show'
+```nmcli con show```
 Zo kan je bekijken of het is gelukt, normaal moet hier de nieuwe connectie bijstaan.
